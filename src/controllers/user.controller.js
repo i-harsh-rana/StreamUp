@@ -45,6 +45,8 @@ const registerUser = asyncHandler(async(req, res) => {
     }
 
     const avatarLocalPath = req.files?.avatar[0]?.path;
+
+    let coverImageLocalPath;
     if (req.files && Array.isArray(req.files.coverImage) && req.files.coverImage.length > 0) {
         coverImageLocalPath = req.files.coverImage[0].path
     }
@@ -54,7 +56,7 @@ const registerUser = asyncHandler(async(req, res) => {
 
     const avatar = await uploadOnCloudinary(avatarLocalPath);
 
-    const coverImage = await uploadOnCloudinary(coverImagePath);
+    const coverImage = await uploadOnCloudinary(coverImageLocalPath);
 
     if(!avatar){
         throw new ApiError(400, "Avatar file is required")
@@ -92,9 +94,10 @@ const loginUser = asyncHandler(async(req, res)=>{
 
     const {email, username, password} = req.body
 
-    if(!username || !email){
-        throw new ApiError(400, "Username or email is required")
+    if ((!username && !email) || !password) {
+        throw new ApiError(400, "Username or email and password are required");
     }
+    
 
     const user = await User.findOne({
         $or: [{username}, {email}]
@@ -112,7 +115,7 @@ const loginUser = asyncHandler(async(req, res)=>{
 
     const {refreshToken, accessToken} = await  generateAccessAndRefreshToken(user._id)
 
-    const loggedInUser =  User.findById(user._id).select("-password -refreshToken")
+    const loggedInUser = await User.findById(user._id).select("-password -refreshToken")
 
     const options = {
         httpOnly: true, 
