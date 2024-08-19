@@ -425,5 +425,5 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserProfile,
-    getWatchHistory
+    getWatchHistory 
 }
