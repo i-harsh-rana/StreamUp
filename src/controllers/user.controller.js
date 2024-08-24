@@ -305,10 +305,10 @@ const getUserProfile = asyncHandler(async(req, res)=>{
 
     const channel = await User.aggregate([
         {
-            $match:{
-                username: username?.toLowerCase()
+            $match: {
+                username: username.toLowerCase()
             }
-        }, 
+        },
         {
             $lookup: {
                 from: "subscriptions",
@@ -326,16 +326,12 @@ const getUserProfile = asyncHandler(async(req, res)=>{
             }
         },
         {
-            $addFields:{
-                subscribersCount: {
-                    $size: "$subscribers"
-                },
-                channelsSubscribedToCount: {
-                    $size: "$subscribedTo"
-                },
+            $addFields: {
+                subscribersCount: { $size: "$subscribers" },
+                channelsSubscribedToCount: { $size: "$subscribedTo" },
                 isSubscribed: {
                     $cond: {
-                        if: {$in: [req.user?._id, "$subscribers.subscriber"]},
+                        if: { $in: [req.user?._id, "$subscribers.subscriber"] },
                         then: true,
                         else: false
                     }
@@ -359,7 +355,7 @@ const getUserProfile = asyncHandler(async(req, res)=>{
     return res
     .status(200)
     .json(
-        new ApiResponse(200, channel[0], "Profile data sent sucessfully")
+        new ApiResponse(200, channel, "Profile data sent sucessfully")
     )
 })
 
