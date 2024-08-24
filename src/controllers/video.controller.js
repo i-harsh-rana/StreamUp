@@ -7,7 +7,52 @@ import {uploadOnCloudinary} from '../utils/cloudinary.js'
 import {asyncHandler} from '../utils/asyncHandler.js'
 
 const getAllVideo = asyncHandler(async(req, res)=>{
-    const {page = 1, limit = 10, query, sortBy, sortType, userId} = req.query
+    const {page = 1, limit = 10, query = '', sortBy = "createdAt", sortType = 'desc', userId} = req.query
+
+    const pipeline = []
+
+    if(userId){
+        pipeline.push({
+            $match: {
+                owner: new mongoose.Types.ObjectId(userId)
+            }
+        })
+    }
+
+    if(query.length > 0){
+        pipeline.push({
+            $match: {
+                $or: [
+                    {title: {$regex: query, $options: 'i'}},
+                    {description: {$regex: query, $options: 'i'}}
+                ]
+            }
+        })
+    }
+
+    const sortOptions = {[sortBy]: sortType === 'desc' ? -1 : 1}
+
+    pipeline.push({
+        $sort: sortOptions
+    })
+
+
+    const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+    }
+
+    try {
+        const videos  = await Video.aggregatePaginate(Video.aggregate(pipeline), options)
+
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(200, videos, "Videos fetched successfully")
+        )
+    } catch (error) {
+        throw new ApiError(500, "Error in fetching videos")
+    }
 
 })
 

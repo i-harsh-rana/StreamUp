@@ -1,11 +1,13 @@
 import { Router } from "express";
 import {verifyJWT} from '../middlewares/auth.middleware.js'
 import {upload} from '../middlewares/multer.middleware.js'
-import { deleteVideo, getVideoById, publishAVideo, toggleVideoStatus, updateVideo } from "../controllers/video.controller.js";
+import { deleteVideo, getAllVideo, getVideoById, publishAVideo, toggleVideoStatus, updateVideo } from "../controllers/video.controller.js";
 
 const router = Router()
 
 router.use(verifyJWT)
+
+router.route("/").get(getAllVideo)
 
 router.route('/upload-video').post(upload.fields([
     {
@@ -17,7 +19,6 @@ router.route('/upload-video').post(upload.fields([
         maxCount: 1
     }
 ]), publishAVideo)
-
 
 router.route("/:videoId").get(getVideoById)
 
