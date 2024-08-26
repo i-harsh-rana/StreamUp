@@ -414,6 +414,22 @@ const getWatchHistory = asyncHandler(async(req, res)=>{
     )
 })
 
+const clearWatchHistory = asyncHandler(async(req, res)=>{
+    const user = req.user._id
+
+    const clean = await User.findByIdAndUpdate(user, {$set: {watchHistory : []}}, {new: true}).select('watchHistory')
+
+    if(!clean){
+        throw new ApiError(500, "Unable to clear watch history")
+    }
+    
+    return res
+    .status(200)
+    .json(
+        new ApiResponse(200, clean, "User Watch History Deleted")
+    )
+})
+
 export {
     registerUser, 
     loginUser, 
@@ -425,5 +441,6 @@ export {
     updateUserAvatar,
     updateUserCoverImage,
     getUserProfile,
-    getWatchHistory 
+    getWatchHistory,
+    clearWatchHistory 
 }
