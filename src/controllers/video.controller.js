@@ -5,6 +5,7 @@ import {ApiError} from '../utils/ApiError.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
 import {uploadOnCloudinary} from '../utils/cloudinary.js'
 import {asyncHandler} from '../utils/asyncHandler.js'
+import { addVideoToWatchHistory} from '../middlewares/addVideoToHistory.middleware.js'
 
 const getAllVideo = asyncHandler(async(req, res)=>{
     const {page = 1, limit = 10, query = '', sortBy = "createdAt", sortType = 'desc', userId} = req.query
@@ -116,6 +117,8 @@ const getVideoById = asyncHandler(async(req, res)=>{
     if(!video){
         throw new ApiError(404, "Video not found")
     }
+
+    await addVideoToWatchHistory(req.user._id, videoId)
 
     return res
     .status(200)
