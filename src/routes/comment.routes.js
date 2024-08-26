@@ -8,10 +8,10 @@ router.use(verifyJWT)
 
 router.route('/:videoId').get(getVideoComment)
 
-router.route('/add').post(addComment)
+router.route('/:videoId').post(addComment)
 
-router.route('/c/:commnetId').delete(deleteComment)
+router.route('/del/:commentId').delete(deleteComment)
 
-router.route('/c/:commnetId').patch(updateComment)
+router.route('/update/:commentId').patch(updateComment)
 
 export default router
