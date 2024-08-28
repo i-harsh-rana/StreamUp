@@ -112,11 +112,18 @@ const publishAVideo = asyncHandler(async(req, res)=>{
 const getVideoById = asyncHandler(async(req, res)=>{
     const {videoId} = req.params
 
+    if (!mongoose.Types.ObjectId.isValid(videoId)) {
+        throw new ApiError(404, "Invalid video ID");
+    }
+
     const video = await Video.findById(videoId).select("-thumbnail -isPublished")
 
     if(!video){
         throw new ApiError(404, "Video not found")
     }
+
+    video.views = video.views+1
+    await video.save({validateBeforeSave: false})
 
     await addVideoToWatchHistory(req.user._id, videoId)
 
