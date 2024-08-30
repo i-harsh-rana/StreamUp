@@ -1,8 +1,16 @@
 import React from "react";
+import Header from './components/Header/Header'
+import Loading from "./components/Loading";
+import SignUp from "./components/SignUp";
 
 function App() {
   return (
-    <div>App</div>
+    <>
+    <Header/>
+    <SignUp/>
+    </>
+    
+    
   )
 }
 
