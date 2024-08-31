@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <div className='relative overflow-hidden bg-gray-box w-full p-5 pl-6 pt-16 border-l-8 border-l-hopbush-main border-b-2 border-b-gray-400/10'>
+    <div className='border-t-2 border-t-gray-400/10 relative overflow-hidden bg-gray-box w-full p-5 pl-6 pt-14 border-l-8 border-l-hopbush-main'>
       <br />
       <div className="relative mx-auto max-w-7xl">
         <div className="flex flex-wrap">
@@ -32,7 +32,7 @@ function Footer() {
               <ul>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Features
@@ -40,7 +40,7 @@ function Footer() {
                 </li>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Pricing
@@ -48,7 +48,7 @@ function Footer() {
                 </li>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Affiliate Program
@@ -56,7 +56,7 @@ function Footer() {
                 </li>
                 <li>
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Press Kit
@@ -74,7 +74,7 @@ function Footer() {
               <ul>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Account
@@ -82,7 +82,7 @@ function Footer() {
                 </li>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Help
@@ -90,7 +90,7 @@ function Footer() {
                 </li>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Contact Us
@@ -98,7 +98,7 @@ function Footer() {
                 </li>
                 <li>
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Customer Support
@@ -116,7 +116,7 @@ function Footer() {
               <ul>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Terms & Conditions
@@ -124,7 +124,7 @@ function Footer() {
                 </li>
                 <li className="mb-4">
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Privacy Policy
@@ -132,7 +132,7 @@ function Footer() {
                 </li>
                 <li>
                   <Link
-                    className="text-base font-medium text-white hover:text-hopbush-500"
+                    className="text-sm font-medium text-white hover:text-hopbush-500"
                     to="/"
                   >
                     Licensing
