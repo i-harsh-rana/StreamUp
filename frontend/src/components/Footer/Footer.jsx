@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <div className='border-t-2 border-t-gray-400/10 relative overflow-hidden bg-gray-box w-full p-5 pl-6 pt-14 border-l-8 border-l-hopbush-main'>
+    <div className='border-t-2 border-t-gray-400/10 relative overflow-hidden bg-gray-box w-full p-5 pl-6 pt-14 pb-20 border-l-8 border-l-hopbush-main'>
       <br />
       <div className="relative mx-auto max-w-7xl">
         <div className="flex flex-wrap">
