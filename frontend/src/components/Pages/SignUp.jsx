@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { useForm } from 'react-hook-form'
 import Input from '../util/Input'
-import Loading from '../Loading';
+import Loading from '../util/Loading';
 import axios from 'axios';
 import Button from '../util/Button';
 import {motion} from 'framer-motion'

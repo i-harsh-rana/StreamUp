@@ -1,5 +1,6 @@
 import React from 'react'
 import Logo from '../../assets/StreamUp.svg'
+import LogoutBtn from './LogoutBtn'
 
 function Header() {
   return (
@@ -8,6 +9,7 @@ function Header() {
         <a href="/">
         <img src={Logo} alt="" className='w-[11rem]'/>
         </a>
+        <LogoutBtn/>
        
     </header>
   )

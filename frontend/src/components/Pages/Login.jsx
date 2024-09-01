@@ -2,7 +2,7 @@ import React, {useState} from 'react'
 import Input from '../util/Input'
 import Button from '../util/Button'
 import { useForm } from 'react-hook-form'
-import Loading from '../Loading'
+import Loading from '../util/Loading'
 import axios from 'axios'
 import {motion} from 'framer-motion'
 import Lottie from 'lottie-react'
@@ -34,7 +34,8 @@ function Login() {
             const response = await axios.post('/api/v1/user/login', formData, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded',
-                }
+                },
+                withCredentials: true
             });
     
             if (response) {
