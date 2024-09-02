@@ -15,7 +15,7 @@ import qs from 'qs'
 
 function Login() {
     const [loading, setLoading] = useState(false);
-    const {register, handleSubmit, formState: {errors}} = useForm()
+    const {register, handleSubmit, formState: {errors}, reset} = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -38,9 +38,12 @@ function Login() {
                 withCredentials: true
             });
     
-            if (response) {
-                dispatch(login(response.data.data));
-                navigate('/videos');
+            if (response.status === 200) {
+                reset();
+                console.log(response.data.data.user);
+                
+                dispatch(login(response.data.data.user));
+                navigate('/profile');
             }
         } catch (error) {
             console.error('Login failed:', error.response ? error.response.data : error.message);

@@ -6,6 +6,8 @@ import Home from "./components/Pages/Home/Home";
 import SignUp from "./components/Pages/SignUp";
 import Login from "./components/Pages/Login";
 import AllVideos from "./components/Pages/AllVideos";
+import ChangePassword from "./components/Pages/ChangePassword";
+import Profile from "./components/Pages/Profile";
 
 function App() {
   return (
@@ -18,6 +20,8 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/user/change-password" element={<ChangePassword />} />
+        <Route path="/profile" element={<Profile />} />
 
         <Route path="/videos" element={<AllVideos />} />
         

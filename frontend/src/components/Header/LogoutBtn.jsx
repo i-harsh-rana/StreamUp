@@ -5,7 +5,7 @@ import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 import { logout } from '../../../store/authSlice'
 
-function LogoutBtn() {
+function LogoutBtn({className = ''}) {
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -16,7 +16,7 @@ function LogoutBtn() {
                 withCredentials: true
             } )
 
-            if(response.status == 200){
+            if(response.status === 200){
                 dispatch(logout())
                 navigate('/')
             }
@@ -26,7 +26,7 @@ function LogoutBtn() {
     }
   return (
    <>
-   <Button onClick={handleLogout} children="Logout"/ >
+   <div className='text-white cursor-pointer' onClick={handleLogout}>LogOut</div>
    </>
   )
 }

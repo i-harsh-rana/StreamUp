@@ -13,7 +13,7 @@ import { login } from '../../../store/authSlice';
 
 function SignUp() {
     const [loading, setLoading] = useState(false);
-    const {register, handleSubmit, formState: {errors}} = useForm()
+    const {register, handleSubmit, formState: {errors}, reset} = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
@@ -37,10 +37,12 @@ function SignUp() {
                     'Content-Type' : 'multipart/form-data', 
                 }
             })
-            if(response){
+            if(response.status === 200){
+                reset();
                 dispatch(login(response.data.data))
+                navigate('/videos');
             }
-            navigate('videos');
+           
 
         } catch (error) {
             console.error('Signup failed', error.response.data);
