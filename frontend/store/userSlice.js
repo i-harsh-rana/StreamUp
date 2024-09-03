@@ -65,7 +65,7 @@ export const fetchUserProfile = (username) => async dispatch =>{
 export const updateAccountDetails = (newData) => async dispatch => {
     dispatch(fetchUserStart())
     try {
-        const response = await axios.patch('/api/v1/update-account', {newData}, {
+        const response = await axios.patch('/api/v1/update-account', newData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }} ,{withCredentials: true})
@@ -81,7 +81,7 @@ export const updateAccountDetails = (newData) => async dispatch => {
 export const updateUserAvatar = (newAvatar) => async dispatch =>{
     dispatch(fetchUserStart())
     try {
-        const response = await axios.patch('/api/v1/avatar', {newAvatar}, {
+        const response = await axios.patch('/api/v1/avatar', newAvatar, {
             headers: {
                 "Content-Type": 'multipart/form-data', 
             }
@@ -98,7 +98,7 @@ export const updateUserAvatar = (newAvatar) => async dispatch =>{
 export const updateCoverImage = (newCoverImage) => async dispatch =>{
     dispatch(fetchUserStart())
     try {
-        const response = await axios.patch('/api/v1/cover-image', {newCoverImage}, {
+        const response = await axios.patch('/api/v1/cover-image', newCoverImage, {
             headers: {
                 "Content-Type": 'multipart/form-data', 
             }
@@ -125,10 +125,10 @@ export const fetchWatchHistory = () => async dispatch =>{
     }
 }
 
-export const clearHistory = () => async distance =>{
+export const clearHistory = () => async dispatch =>{
     dispatch(fetchUserStart());
     try {
-        const response = await axios.get('/api/v1/clearhisrory', {withCredentials: true});
+        const response = await axios.get('/api/v1/clearhistory', {withCredentials: true});
         if(response.status === 200){
             dispatch(clearWatchHistory());
         }
