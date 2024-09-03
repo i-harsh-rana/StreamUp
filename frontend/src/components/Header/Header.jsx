@@ -2,21 +2,12 @@ import React, { useState } from 'react'
 import Logo from '../../assets/StreamUp.svg'
 import LogoutBtn from './LogoutBtn'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 import Button from '../util/Button'
 import {motion} from 'framer-motion'
+import { fetchUserProfile } from '../../services/fetchsUserData'
 
 function Header() {
-
-
-
-
-
-
-
-
-
-
   const navigate = useNavigate();
   const authStatus = useSelector((state) => state.auth.status) 
   const userData = useSelector((state)=> state.auth.userData)
@@ -47,9 +38,15 @@ function Header() {
     }
   ]
 
+const handleProfileClick = ()=>{
+  if(userData){
+    navigate('/profile')
+  }else{
+    navigate('/login')
+  }
+}
+
   return (
-
-
     <header className='sticky top-0 z-30 bg-gray-box opacity-100 w-full p-5 pl-6 border-l-8 border-l-hopbush-main border-b-2 border-b-gray-400/10 flex'>
 
         <Link to='/' className='place-content-center'>
@@ -74,45 +71,32 @@ function Header() {
                     <div><img src={avatar} alt="avatar" className='w-[3rem] h-[3rem] ml-6 rounded-full object-cover' /></div>
                   </div>
                   <motion.div
-                    initial={{ height: "0px" }} 
-                    animate={{ height: dropDown ? "130px" : "0px" }} 
-                    transition={{ duration: 0.3 }} 
+                    initial={{ height: "0px", width: "0px" }} 
+                    animate={{ height: dropDown ? "130px" : "0px", width: dropDown ? "181px" : "0px" }} 
+                    transition={{ duration: 0.3, }} 
                     style={{ overflow: 'hidden' }}
                     className="absolute border-2 border-gray-400/10 bg-background-all rounded-lg"
                   >
-                    <div className='w-[10rem] grid place-content-center grid-rows-2 '>
+                    <div className='w-[11rem] grid place-content-center grid-rows-2 '>
                       <motion.div 
                       initial={{y: -9, opacity: 0}}
                       animate={{y: dropDown ? 0 : -9, opacity: dropDown ? 1 : 0}}
-                      transition={{duration: 0.2, delay: 0.3}}
-                      className='w-[10rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
-                        <Link to='/profile' className='text-white block '>My Profile</Link>
+                      transition={{duration: 0.2, delay: 0.3, type: 'spring', stiffness: 100, damping: 13}}
+                      className='w-[12rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
+                        <div onClick={handleProfileClick} className='text-white block '>My Profile<i className="fa-regular fa-user ml-6"></i></div>
                       </motion.div>
                       <motion.div 
                       initial={{y: -9, opacity: 0}}
                       animate={{y: dropDown ? 0 : -9, opacity: dropDown ? 1 : 0}}
-                      transition={{duration: 0.2, delay: 0.3}}
-                      className='w-[10rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
-                        <LogoutBtn />
+                      transition={{duration: 0.2, delay: 0.3, type: 'spring', stiffness: 100, damping: 13}}
+                      className='w-[12rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
+                        <LogoutBtn /><i class="fa-solid fa-arrow-right-from-bracket ml-6 text-white"></i>
                       </motion.div>
                     </div>
                   </motion.div>
               </li>
             )}
           </ul>
-
-
-
-
-
-
-
-
-
-       
-
-
-
     </header>
   )
 }
