@@ -18,6 +18,7 @@ function LogoutBtn({className = ''}) {
 
             if(response.status === 200){
                 dispatch(logout())
+                persistor.purge();
                 navigate('/')
             }
         } catch (error) {

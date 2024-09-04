@@ -40,10 +40,9 @@ export const {fetchUserStart, fetchUserSuccess, fetchUserFail, updateUserProfile
 export const fetchCurrentUser = () => async dispatch =>{
     dispatch(fetchUserStart())
     try {
-        const response = await axios.get('/api/v1/current-user', {withCredentials: true});
-
+        const response = await axios.get('/api/v1/user/current-user', {withCredentials: true});
         if(response.status === 200){
-            dispatch(fetchUserSuccess(response.data.data.user));
+            dispatch(fetchUserSuccess(response.data.data));
         }
     } catch (error) {
         dispatch(fetchUserFail(error.message))
@@ -136,3 +135,5 @@ export const clearHistory = () => async dispatch =>{
         console.error('Fail to clear history:', error.message);
     }
 }
+
+export default userSlice.reducer;

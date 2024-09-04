@@ -40,9 +40,9 @@ function Header() {
 
 const handleProfileClick = ()=>{
   if(userData){
-    navigate('/profile')
+    navigate(`/profile/${userData.username}`)
   }else{
-    navigate('/login')
+    navigate('login')
   }
 }
 
