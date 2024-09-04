@@ -5,7 +5,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch, useSelector } from 'react-redux'
 import Button from '../util/Button'
 import {motion} from 'framer-motion'
-import { fetchUserProfile } from '../../services/fetchsUserData'
+
 
 function Header() {
   const navigate = useNavigate();
@@ -42,7 +42,7 @@ const handleProfileClick = ()=>{
   if(userData){
     navigate(`/profile/${userData.username}`)
   }else{
-    navigate('login')
+    navigate('/login')
   }
 }
 

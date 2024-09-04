@@ -18,8 +18,13 @@ function LogoutBtn({className = ''}) {
 
             if(response.status === 200){
                 dispatch(logout())
-                persistor.purge();
-                navigate('/')
+
+                localStorage.clear();
+
+                await persistor.purge();
+
+                navigate('/');
+
             }
         } catch (error) {
             console.error('Logout failed:', error.response ? error.response.data : error.message);

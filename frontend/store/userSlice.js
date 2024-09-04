@@ -52,9 +52,9 @@ export const fetchCurrentUser = () => async dispatch =>{
 export const fetchUserProfile = (username) => async dispatch =>{
     dispatch(fetchUserStart())
     try {
-        const response = await axios.get(`/api/v1/${username}`, {withCredentials: true});
+        const response = await axios.get(`/api/v1/user/c/${username}`, {withCredentials: true});
         if(response.status === 200){
-            dispatch(fetchUserSuccess(response.data.data))
+            dispatch(fetchUserSuccess(response.data.data[0]))
         }
     } catch (error) {
         dispatch(fetchUserFail(error.message));
@@ -64,7 +64,7 @@ export const fetchUserProfile = (username) => async dispatch =>{
 export const updateAccountDetails = (newData) => async dispatch => {
     dispatch(fetchUserStart())
     try {
-        const response = await axios.patch('/api/v1/update-account', newData, {
+        const response = await axios.patch('/api/v1/user/update-account', newData, {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             }} ,{withCredentials: true})
