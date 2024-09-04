@@ -29,41 +29,32 @@ const getSubscribers = asyncHandler(async(req, res)=>{
 
 })
 
-const toggleSubscribe = asyncHandler(async(req, res)=>{
-    const {channelId} = req.params
+const toggleSubscribe = asyncHandler(async (req, res) => {
+    const { channelId } = req.params;
+    const currentUser = req.user._id;
 
-    const currentUser = req.user._id
-
-    const existingSubscriber = await Subscription.findOne({
-        subscription: currentUser,
+    // Check for existing subscription
+    const existingSubscription = await Subscription.findOne({
+        subscriber: currentUser,
         channel: channelId
-    })
+    });
 
-    if(existingSubscriber){
-        await Subscription.deleteOne({_id: existingSubscriber._id})
-        return res
-        .status(200)
-        .json(
-            new ApiResponse(200, null, "Channel unsubscribed")
-        )
-    }else{
-        const newSubscriber = new Subscription({
+    if (existingSubscription) {
+        // Unsubscribe
+        await Subscription.deleteOne({ _id: existingSubscription._id });
+        return res.status(200).json(new ApiResponse(200, null, "Channel unsubscribed"));
+    } else {
+        // Subscribe
+        const newSubscription = new Subscription({
             subscriber: currentUser,
             channel: channelId
-        })
+        });
 
-        await newSubscriber.save()
-
-        return res
-        .status(200)
-        .json(
-            new ApiResponse(200, null, "Channel Subscribed")
-        )
+        await newSubscription.save();
+        return res.status(200).json(new ApiResponse(200, null, "Channel subscribed"));
     }
+});
 
-
-    
-})
 
 
 export {

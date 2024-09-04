@@ -349,7 +349,8 @@ const getUserProfile = asyncHandler(async(req, res)=>{
                 email: 1,
                 subscribersCount: 1,
                 channelsSubscribedToCount: 1,
-                isSubscribed: 1
+                isSubscribed: 1,
+                createdAt: 1
             }
         }
     ])
