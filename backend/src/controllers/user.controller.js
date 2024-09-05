@@ -289,7 +289,7 @@ const updateUserCoverImage = asyncHandler(async( req, res )=>{
 
     const coverImage = await uploadOnCloudinary(coverImagePath)
 
-    const user = await User.findByIdAndUpdate(req.user?._id, {$set: {coverImage: coverImage.url}}, {new : true}).select("-password")
+    const user = await User.findByIdAndUpdate(req.user._id, {$set: {coverImage: coverImage.url}}, {new : true}).select("-password")
 
     return res
     .status(200)
@@ -362,20 +362,29 @@ const getUserProfile = asyncHandler(async(req, res)=>{
     )
 })
 
-const getWatchHistory = asyncHandler(async(req, res)=>{
-   //---->>> req.user._id //this will not return mongoDB id, this return mongoDb ID's String, mongoose convert it to ID, but in aggrigation, mongoose will not help
+const getWatchHistory = asyncHandler(async (req, res) => {
+    const userId = new mongoose.Types.ObjectId(req.user._id);
+
     const user = await User.aggregate([
         {
             $match: {
-                _id: new mongoose.Types.ObjectId(req.user._id)
+                _id: userId
             }
-        }, 
+        },
+        {
+            $project: {
+                watchHistory: 1
+            }
+        },
+        {
+            $unwind: "$watchHistory"
+        },
         {
             $lookup: {
                 from: "videos",
                 localField: "watchHistory",
                 foreignField: "_id",
-                as: "watchHistory",
+                as: "videoDetails",
                 pipeline: [
                     {
                         $lookup: {
@@ -383,7 +392,7 @@ const getWatchHistory = asyncHandler(async(req, res)=>{
                             localField: "owner",
                             foreignField: "_id",
                             as: "owner",
-                            pipeline:[
+                            pipeline: [
                                 {
                                     $project: {
                                         fullName: 1,
@@ -397,25 +406,40 @@ const getWatchHistory = asyncHandler(async(req, res)=>{
                     {
                         $addFields: {
                             owner: {
-                                $first : "$owner"
+                                $arrayElemAt: ["$owner", 0]
                             }
                         }
                     }
                 ]
             }
+        },
+        {
+            $addFields: {
+                videoDetails: {
+                    $arrayElemAt: ["$videoDetails", 0]
+                },
+                watchHistoryPosition: "$$ROOT._id"
+            }
+        },
+        {
+            $group: {
+                _id: "$_id",
+                watchHistory: { $push: "$videoDetails" }
+            }
         }
-    ])
+    ]);
 
     return res
-    .status(200)
-    .json(
-        new ApiResponse(
-            200,
-            user[0].watchHistory,
-            "Watch history fetched successfully"
-        )
-    )
-})
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                user[0]?.watchHistory,
+                "Watch history fetched successfully"
+            )
+        );
+});
+
 
 const clearWatchHistory = asyncHandler(async(req, res)=>{
     const user = req.user._id
