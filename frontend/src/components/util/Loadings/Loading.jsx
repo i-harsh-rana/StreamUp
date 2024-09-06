@@ -1,6 +1,6 @@
 import React from 'react';
 import Lottie  from 'lottie-react';
-import animationData from '../../assets/Animation - 1725005426996.json'; 
+import animationData from '../../../assets/Animation - 1725005426996.json'; 
 const Loading = () => {
   return (
     <div className='flex justify-center items-center fixed top-0 z-50 w-full h-full bg-hopbush-900/10'>

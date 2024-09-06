@@ -8,6 +8,7 @@ import Login from "./components/Pages/Login";
 import AllVideos from "./components/Pages/AllVideos";
 import ChangePassword from "./components/Pages/ChangePassword";
 import Profile from "./components/Pages/Profile";
+import Video from "./components/Pages/Video";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/profile/:username" element={<Profile />} />
 
         <Route path="/videos" element={<AllVideos />} />
+        <Route path="/video/:videoId" element={<Video/>} />
         
       </Routes>
       </main>

@@ -90,7 +90,7 @@ const handleProfileClick = ()=>{
                       animate={{y: dropDown ? 0 : -9, opacity: dropDown ? 1 : 0}}
                       transition={{duration: 0.2, delay: 0.3, type: 'spring', stiffness: 100, damping: 13}}
                       className='w-[12rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
-                        <LogoutBtn /><i class="fa-solid fa-arrow-right-from-bracket ml-6 text-white"></i>
+                        <LogoutBtn /><i className="fa-solid fa-arrow-right-from-bracket ml-6 text-white"></i>
                       </motion.div>
                     </div>
                   </motion.div>

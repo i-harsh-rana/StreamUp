@@ -30,8 +30,9 @@ function VideoCardMini({
  
     const durationStr = secondsToHHMMSS(duration);
   return (
-    <div className='w-full rounded-2xl bg-white/5 h-40 grid grid-cols-5 relative'>
-        <img src={thumbnail} className='h-40 w-full object-cover rounded-l-2xl col-span-2 relative' />
+    <div className='w-full rounded-2xl bg-white/5 h-40 grid grid-cols-5 relative hover:bg-white/10'>
+      <i class="fa-solid fa-play absolute text-5xl z-10 opacity-50 left-28 top-14 hover:opacity-70"></i>
+        <img src={thumbnail} className='h-40 w-full object-cover rounded-l-2xl col-span-2 relative hover:opacity-80' />
         <div className='p-4 grid grid-rows-3'>
             <p className='text-xl font-medium'>{title}</p>
             <div className='flex'>

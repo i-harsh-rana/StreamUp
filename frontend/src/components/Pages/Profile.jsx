@@ -10,8 +10,11 @@ import Input from '../util/Input';
 import Button from '../util/Button';
 import { useState } from 'react';
 import qs from 'qs';
-import {easeInOut, motion} from 'framer-motion'
+import {motion} from 'framer-motion'
+import { Link } from 'react-router-dom';
 import VideoCardMini from '../videoCards/VideoCardMini';
+
+
 
 function Profile() {
     const {username} = useParams();
@@ -153,7 +156,7 @@ function Profile() {
           </div>
          
           <img src={user.avatar} alt="ProfileImage" className='w-[15rem] h-[15rem] rounded-full relative -top-[7rem] left-10 shadow-xl border-[0.5rem] object-cover border-gray-box ' />
-          <button onClick={handleSubscribe} className={`absolute right-12 mr-5 top-[28rem]  rounded-full active:opacity-70 p-4 px-10 ${user.isSubscribed ? 'bg-hopbush-main' :'bg-white'}  ${user.isSubscribed ? ' text-white' :' text-black'}`}>{user.isSubscribed ? "Subscribed" : "Subscribe"}</button>
+          <button onClick={handleSubscribe} className={`shadow-xl absolute right-12 mr-5 top-[28rem]  rounded-full active:opacity-70 p-4 px-10 ${user.isSubscribed ? 'bg-hopbush-main hover:bg-hopbush-main/80 active:bg-hopbush-main' :'bg-white hover:bg-white/80'}  ${user.isSubscribed ? ' text-white' :' text-black'}`}>{user.isSubscribed ? "Subscribed" : "Subscribe"}</button>
           <div className='-top-20 relative ml-[4rem] mr-[4rem] h-[5rem] grid grid-cols-5 gap-5'>
             <div className='bg-white/5 rounded-xl col-span-3 p-8 relative shadow-xl'>
             <i class="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" onClick={handleDetailBoxVisible}></i>
@@ -226,6 +229,7 @@ function Profile() {
             {watchHistory && watchHistory.length > 0 ? (
               watchHistory.map((history, index) => (
                   <div key={index}>
+                    <Link to={`/video/${history._id}`}>
                       <VideoCardMini 
                           thumbnail={history.thumbnail} 
                           title={history.title} 
@@ -234,6 +238,7 @@ function Profile() {
                           duration={history.duration} 
                           views={history.views} 
                       />
+                    </Link>
                   </div>
               ))
           ) : (
