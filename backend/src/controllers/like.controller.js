@@ -124,19 +124,23 @@ const toggleVideoLike = asyncHandler(async(req, res)=>{
         if(!newVideoLike){
             throw new ApiError(500, "Unable to like Video, please try again")
         }
+        
+        const VideoLikeCount = await Like.countDocuments({video: videoId})
 
         return res
         .status(200)
         .json(
-            new ApiResponse(200, newVideoLike, "Video Liked Successfully")
+            new ApiResponse(200, VideoLikeCount, "Video Liked Successfully")
         )
     }else{
         await Like.deleteOne({ _id: findVideoLike._id });
 
+        const VideoLikeCount = await Like.countDocuments({video: videoId})
+
         return res
         .status(200)
         .json(
-            new ApiResponse(200, null, "Unliked video Successfully")
+            new ApiResponse(200, VideoLikeCount, "Unliked video Successfully")
         )
     }
 
