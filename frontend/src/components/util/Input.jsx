@@ -18,7 +18,7 @@ const Input = forwardRef(function Input({
         ref={ref}
         id={id}
         {...props}
-        className={`px-3 py-2 rounded-lg mb-3 bg-gray-100 text-black outline-none w-full focus:bg-hopbush-100 duration-200 border ${error ? 'border-red-500' : 'border-hopbush-300'} ${className}`}
+        className={`${className} px-3 py-2 rounded-lg mb-3 bg-gray-100 text-black outline-none w-full focus:bg-hopbush-100 duration-200 border ${error ? 'border-red-500' : 'border-hopbush-300'} `}
       />
       {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>
