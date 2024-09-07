@@ -34,19 +34,23 @@ const toggleCommentLike = asyncHandler(async(req, res)=>{
         if(!newCommentLike){
             throw new ApiError(500, "Unable to like please try again")
         }
+        
+        const commentLikeCount = await Like.countDocuments({comment: commentId})
 
         return res
         .status(200)
         .json(
-            new ApiResponse(200, newCommentLike, "Comment liked successfully")
+            new ApiResponse(200, commentLikeCount, "Comment liked successfully")
         )
     }else{
         await Like.deleteOne({ _id: findCommentLike._id });
 
+        const commentLikeCount = await Like.countDocuments({comment: commentId})
+
         return res
         .status(200)
         .json(
-            new ApiResponse(200, null, "Comment Unliked Successfully")
+            new ApiResponse(200, commentLikeCount, "Comment Unliked Successfully")
         )
     }
 
