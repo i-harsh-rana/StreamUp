@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import {Video} from '../models/video.model.js'
+import {Like} from '../models/like.model.js'
 import {User} from '../models/user.model.js'
 import {ApiError} from '../utils/ApiError.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
@@ -84,8 +85,6 @@ const publishAVideo = asyncHandler(async(req, res)=>{
 
     const uploadVideo = await uploadOnCloudinary(videoLocalPath);
     const uploadThumbnail = await uploadOnCloudinary(thumbnailLocalPath);
-
-    console.log(uploadVideo)
     
     if(!uploadVideo){
         throw new ApiError(500, "Error in video upload, please try again")
@@ -116,7 +115,7 @@ const getVideoById = asyncHandler(async(req, res)=>{
         throw new ApiError(404, "Invalid video ID");
     }
 
-    const video = await Video.findById(videoId).select("-isPublished").populate('owner', 'avatar fullName')
+    const video = await Video.findById(videoId).select("-isPublished").populate('owner', 'avatar fullName username')
 
     if(!video){
         throw new ApiError(404, "Video not found")
@@ -127,10 +126,22 @@ const getVideoById = asyncHandler(async(req, res)=>{
 
     await addVideoToWatchHistory(req.user._id, videoId)
 
+    const videoLike = await Like.find({video: video._id})
+
+    const userId = new mongoose.Types.ObjectId(req.user._id)
+
+    const likeCheck = videoLike.filter(like=> like.likedBy.equals(userId));
+
+    const videoResponse = {
+        ...video.toObject(),
+        likeCount: videoLike.length,
+        likeCheck: likeCheck.length
+    }
+
     return res
     .status(200)
     .json(
-        new ApiResponse(200, video, "Video Found!")
+        new ApiResponse(200, videoResponse, "Video Found!")
     )
 })
 
