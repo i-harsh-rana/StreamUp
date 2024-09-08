@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import qs from 'qs';
 import Input from '../util/Input';
 import { useForm } from 'react-hook-form';
+import timeCalculator from '../util/timeCalculator';
 
 function VideoComment({ videoId }) {
   const [loading, setLoading] = useState(false);
@@ -114,7 +115,7 @@ function VideoComment({ videoId }) {
       try {
         await deleteComment(commentId);
         setComments(prevComments => prevComments.filter(comment => comment._doc._id !== commentId));
-        comments.fin
+        setTotalComment(prevTotal => prevTotal - 1);
       } catch (error) {
         console.error("Error while deleteing comment", error);
       }
@@ -141,7 +142,7 @@ function VideoComment({ videoId }) {
             {...register('content', { required: 'To post please add comment' })}
             error={errors.content?.message}
             labelClassName="text-white"
-            className='bg-gray-box border-none text-white focus:bg-gray-box' placeholder='Add Comment'/>
+            className='bg-gray-box border-none text-white' placeholder='Add Comment' onFocus={(e) => { e.target.style.backgroundColor = "#18181B"}}/>
           </div>
           <div className='flex justify-end '>
             <button type='submit'>Post</button>
@@ -157,7 +158,7 @@ function VideoComment({ videoId }) {
             </div>
             <div className='col-span-11 flex justify-between'>
               <div>
-                <p className='text-white/60 m-2'>@ {comment._doc.owner.username}</p>
+                <p className='text-white/60 m-2'>@ {comment._doc.owner.username} &nbsp;&nbsp;&nbsp; {timeCalculator(comment._doc.createdAt)}</p>
                 {editingCommentId === comment._doc._id ? (
                   <textarea
                     value={editedContent}
@@ -177,10 +178,10 @@ function VideoComment({ videoId }) {
               <div className='mr-4'>
                 {comment._doc.owner._id === user._id && (
                   editingCommentId === comment._doc._id ? (
-                    <div>
-                      <button onClick={() => handleEditSave(comment._doc._id)} className="mr-5">Save</button>
-                      <button onClick={handleEditCancel}>Cancel</button>
-                      <button onClick={()=>handleDeleteComment(comment._doc._id)}>Delete</button>
+                    <div className='grid grid-rows-3'>
+                      <button onClick={() => handleEditSave(comment._doc._id)} className="m-2 text-start opacity-65 hover:opacity-100 active:opacity-65 ">Save</button>
+                      <button onClick={handleEditCancel} className="m-2 text-start opacity-65 hover:opacity-100 active:opacity-65 ">Cancel</button>
+                      <button onClick={()=>handleDeleteComment(comment._doc._id)} className="m-2 text-start opacity-65 hover:opacity-100 active:opacity-65 ">Delete</button>
                     </div>
                   ) : (
                     <button onClick={() => handleEditClick(comment._doc._id, comment._doc.content)}>

@@ -3,17 +3,23 @@ import VideoPlayer from '../util/videoPlayer/VideoPlayer';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 import LoadingCircular from '../util/Loadings/LoadingCircular';
-import { getSubscribersCount } from '../../services/subscription';
-import { fetchVideoComment } from '../../services/comment';
+import { getSubscribers, toggleSubscribe } from '../../services/subscription';
 import VideoComment from '../comment/VideoComment';
+import timeCalculator from '../util/timeCalculator'
+import { useSelector } from 'react-redux';
+import { fetchVideoLike } from '../../services/likes';
+import { Link } from 'react-router-dom';
 
 function Video() {
+  const curUser = useSelector((state)=>state.auth.userData);
   const [videoData, setVideoData] = useState(null);
   const [subscriberCount, setSubscriberCount] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const { videoId } = useParams();
-  const [commentData, setCommentData] = useState(null);
+  const [descriptionOverFlow, setDescriptionOverFlow] = useState(false);
+  const [subscribed, setSubscribed] = useState();
+  const [like, setLike] = useState();
 
   useEffect(() => {
     let isMounted = true;
@@ -27,8 +33,16 @@ function Video() {
         });
 
         if (isMounted) {
+          console.log(response.data.data.likeCheck);
+          
           setVideoData(response.data.data);
           setLoading(false);
+          if(response.data.data.likeCheck === 1){
+            setLike(true);
+          }else{
+            setLike(false);
+          }
+          
         }
       } catch (error) {
         if (isMounted) {
@@ -47,14 +61,43 @@ function Video() {
 
   useEffect(() => {
     if (videoData?.owner?._id) {
-      const fetchSubscriberCount = async () => {
-        const response = await getSubscribersCount(videoData.owner._id);
-        setSubscriberCount(response);
+      const fetchSubscriber = async () => {
+        const response = await getSubscribers(videoData.owner._id);
+        setSubscriberCount(response.length);
+        
+        const checkSubscribe = response.filter(res => res.subscriber._id === curUser._id)
+        if(checkSubscribe.length>0){
+          setSubscribed(true)
+        }else{
+          setSubscribed(false)
+        }
       };
 
-      fetchSubscriberCount();
+      fetchSubscriber();
     }
-  }, [videoData]);
+  }, [videoData, subscribed]);
+
+  const handleSubscribeToggle = async(channelId)=>{
+    try {
+      await toggleSubscribe(channelId);
+      setSubscribed(!subscribed);
+    } catch (error) {
+      console.error("Error while toggling subscribe", error);
+      
+    }
+  }
+
+  const hangleVideoLikeToggle = async(videoId)=>{
+      try {
+        const newLikeCount = await fetchVideoLike(videoId);
+        const updatedVideoData = {...videoData};
+        updatedVideoData.likeCount = newLikeCount;
+        setVideoData(updatedVideoData);
+        setLike(!like);
+      } catch (error) {
+        console.error("Error while toggling videoLike", error);
+      }
+  }
 
 
   if (loading) {
@@ -80,26 +123,40 @@ function Video() {
             poster={videoData.thumbnail}
           />
         )}
-        <div className='p-6'>
-          <div className='text-3xl font-semibold mb-8'>
-            {videoData.title}
+        <div className='p-7'>
+          <div className='text-2xl font-normal mb-8'>
+            {videoData.title} 
           </div>
-          <div className='grid grid-cols-3 w-[12rem] gap-4'>
+          <div className='grid grid-cols-12 gap-4 mb-8 w-full'>
             <img src={videoData.owner.avatar} className='w-12 h-12 rounded-full' alt='Owner avatar' />
-            <div>
-              <p className='text-xl'>{videoData.owner.fullName}</p>
-              <div className='opacity-75 flex col-span-2'>
+            <div className='col-span-2'>
+              <Link to={`/profile/${videoData.owner.username}`}>
+                 <p className='text-xl'>{videoData.owner.fullName}</p>
+              </Link>
+             
+              <div className='opacity-75 flex '>
                 {subscriberCount} <p className='ml-2'>Subscribers</p>
               </div>
             </div>
+
+            <button onClick={()=>handleSubscribeToggle(videoData.owner._id)} className={` col-span-7 p-3 px-6  w-fit rounded-full ${subscribed ? 'bg-hopbush-main text-white active:bg-hopbush-600' : 'bg-white text-black active:bg-slate-100'}`}>{subscribed ? 'Subscribed' : 'Subscribe'}</button>
+            <div className='col-span-2 flex justify-center items-center'>
+              <i onClick={()=>hangleVideoLikeToggle(videoId)} className={`fa-heart text-2xl mr-3 ${like ? 'text-red-700 fa-solid' : 'fa-regular'}`}></i>
+                <p className='text-sm opacity-85'>{videoData.likeCount}</p>
+            </div>
           </div>
 
-          {videoData.views}<br />
+          
 
-          <div>
-            {videoData.description}
+          <div className={`bg-white/10 rounded-xl p-5 relative ${descriptionOverFlow ? 'h-full' : 'h-[5.5rem]'} `}>
+            <p className='font-light mb-2'>{videoData.views} views &nbsp;&nbsp;&nbsp; {timeCalculator(videoData.createdAt)}</p>
+            <p className={`${descriptionOverFlow ? 'mb-8' : 'truncate mr-28'}`}>
+                {videoData.description}
+            </p>
+            
+            <button onClick={()=>setDescriptionOverFlow(!descriptionOverFlow)} className='absolute bottom-3 right-1 text-base w-[8rem]'>{descriptionOverFlow ? 'show less' : 'show more'}  </button>
           </div>
-
+          
           <div className='rounded-[1.3rem] p-6 mt-6'>
            <VideoComment videoId={videoId}/>
           </div>

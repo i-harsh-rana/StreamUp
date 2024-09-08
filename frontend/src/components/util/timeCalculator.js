@@ -1,4 +1,4 @@
-function calculateElapsedTime(timestamp) {
+export default function timeCalculator(timestamp) {
     const givenTime = new Date(timestamp);
     const currentTime = new Date();
   
