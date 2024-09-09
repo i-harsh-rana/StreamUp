@@ -7,7 +7,7 @@ function VideoCardMini({
     views = "",
     ownerUsername = "",
     ownerAvatar = "",
-
+    className = ''
 }) {
 
     function secondsToHHMMSS(seconds) {
@@ -30,18 +30,23 @@ function VideoCardMini({
  
     const durationStr = secondsToHHMMSS(duration);
   return (
-    <div className='w-full rounded-2xl bg-white/5 h-40 grid grid-cols-5 relative hover:bg-white/10'>
-      <i class="fa-solid fa-play absolute text-5xl z-10 opacity-50 left-28 top-14 hover:opacity-70"></i>
-        <img src={thumbnail} className='h-40 w-full object-cover rounded-l-2xl col-span-2 relative hover:opacity-80' />
-        <div className='p-4 grid grid-rows-3'>
-            <p className='text-xl font-medium'>{title}</p>
-            <div className='flex'>
+    <div className={`rounded-xl bg-white/5 h-60 grid relative hover:bg-white/10 w-[19rem] ml-5 ${className}`}>
+      
+      <div className='flex justify-center items-center'>
+      <i class="fa-solid fa-play absolute text-5xl z-10 opacity-50  hover:opacity-70"></i>
+      <img src={thumbnail} className='h-[9rem] w-full object-cover rounded-t-xl col-span-2 relative hover:opacity-80' />
+      </div>
+       
+        <div className='p-4 grid grid-rows-2'>
+            <p className='text-xl font-normal mb-2'>{title}</p>
+            <div className='flex items-center'>
                 <img src={ownerAvatar} className='rounded-full w-5 h-5' />
                 <p className='opacity-70 ml-2'>{ownerUsername}</p>
             </div>
-            <div className='opacity-70'>{views}&nbsp;views</div>
+            <div className='opacity-65 absolute right-3 bottom-3 font-light text-sm'>{views}&nbsp;views</div>
         </div>
-        <div className='p-2 rounded-lg bg-black/40 absolute bottom-4 left-40'>{durationStr}</div>
+        <div className='p-2 rounded-lg bg-black/50 absolute right-[0.4rem] top-[6.4rem] text-sm'>{durationStr}</div>
+        
     </div>
   )
 }

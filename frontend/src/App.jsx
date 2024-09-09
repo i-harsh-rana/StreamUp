@@ -10,6 +10,7 @@ import ChangePassword from "./components/Pages/ChangePassword";
 import Profile from "./components/Pages/Profile";
 import Video from "./components/Pages/Video";
 import UploadVideo from "./components/Pages/UploadVideo";
+import Dashboard from "./components/Pages/Dashboard/Dashboard";
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
 
         <Route path="/videos" element={<AllVideos />} />
         <Route path="/video/:videoId" element={<Video/>} />
+        <Route path="/user-dashboard" element={<Dashboard/>}/>
 
         <Route path="/newvideo" element={<UploadVideo/>}/>
         
