@@ -9,7 +9,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import './Slide.css'
 import { Link } from 'react-router-dom'
-
+import { useForm } from 'react-hook-form'
+import Input from '../../util/Input';
+import Button from '../../util/Button'
+import qs from 'qs';
+import { useCallback } from 'react'
 
 function Dashboard() {
     const [userData, setUserData] = useState(null);
@@ -17,6 +21,11 @@ function Dashboard() {
     const [channelVideo, setChannelVideo] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
+    const [updateDetailBox, setUpdateDetailBox] = useState(false);
+    const {register, handleSubmit, formState:{errors}, reset} = useForm();
+    const [editAvatarBox, setEditAvatarBox] = useState(false);
+    const [editCoverImageBox, setEditCoverImageBox] = useState(false);
+    const [chooseEditImages, setChooseEditImages] = useState(false);
 
     const settings = {
       infinite: false,
@@ -25,36 +34,30 @@ function Dashboard() {
       slidesToScroll: 3
       };
 
-    useEffect(()=>{
-        const fetchDashboardData = async()=>{
-            setLoading(true);
-           try {
-            const response  = await axios.get('/api/v1/dashboard/stats', {
-                withCredentials: true
-            })
+      const fetchDashboardData = useCallback(async () => {
+          setLoading(true)
+          try {
+              const response = await axios.get('/api/v1/dashboard/stats', {
+                  withCredentials: true
+              })
 
-            if(response.status === 200){
-                const {userId, findVideosOfChannel } = response.data.data;
-console.log(response.data.data);
+              if (response.status === 200) {
+                  const { userId, findVideosOfChannel } = response.data.data
+                  setUserData(userId)
+                  setWatchHistory(userId.watchHistory)
+                  setChannelVideo(findVideosOfChannel)
+              }
+          } catch (error) {
+              console.error("Error while fetching dashboard data", error)
+              setError(error.message)
+          } finally {
+              setLoading(false)
+          }
+      }, [])
 
-                setUserData(userId);
-                setWatchHistory(userId.watchHistory);
-                setChannelVideo(findVideosOfChannel);
-
-            }
-           } catch (error) {
-                console.error("Error while fetch dashboard data", error);
-                setError(error.message);
-           }finally{
-            setLoading(false);
-           }
-            
-
-            
-        }
-
-        fetchDashboardData();
-    }, [])
+      useEffect(() => {
+          fetchDashboardData()
+      }, [fetchDashboardData])
 
     const handleClearHistory = async()=>{
       try {
@@ -73,6 +76,86 @@ console.log(response.data.data);
       }
     }
 
+    const updateDeatils = async (data) => {
+      if (!data.fullName && !data.email) {
+        return alert('At least one field (Full Name or Email) is required to update!');
+      }
+    
+      const formData = {};
+    
+      if (data.fullName) {
+        formData.fullName = data.fullName;
+      }
+    
+      if (data.email) {
+        formData.email = data.email;
+      }
+    
+      const stringifiedData = qs.stringify(formData);
+    
+      try {
+        const response = await axios.patch('/api/v1/user/update-account', stringifiedData, {
+          headers:{
+            'Content-Type': 'application/x-www-form-urlencoded',
+            withCredentials: true
+          }
+        })
+        console.log(response.data.data)
+        if(response.status === 200){
+          setUpdateDetailBox(!updateDetailBox);  
+          reset();
+          setUserData({...userData, fullName: response.data.data.fullName, email: response.data.data.email});
+          
+        }
+      } catch (error) {
+        console.error('Update Fail:', error.response ? error.response.data : error.message);
+      }
+    }
+
+    const updateAvatar = async(data)=>{
+      const formData = new FormData()
+      formData.append('avatar', data.avatar[0])
+      try {
+        const response = await axios.patch('/api/v1/user/avatar', formData, {
+          headers:{
+           'Content-Type' : 'multipart/form-data', 
+           withCredentials: true
+          }
+        })
+
+        if(response.status === 200){
+          console.log(response)
+          setEditAvatarBox(false);
+          reset();
+          setUserData({...userData, avatar: response.data.data.avatar})
+        }
+      } catch (error) {
+        console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
+      }
+    }
+
+
+    const coverImageUpdate = async(data)=>{
+      const formData = new FormData()
+      formData.append('coverImage', data.coverImage[0])
+      try {
+        const response = await axios.patch('/api/v1/user/cover-image', formData, {
+          headers:{
+           'Content-Type' : 'multipart/form-data', 
+           withCredentials: true
+          }
+        })
+
+        if(response.status === 200){
+          setEditCoverImageBox(false);
+          reset();
+          setUserData({...userData, coverImage: response.data.data.coverImage})
+        }
+      } catch (error) {
+        console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
+      }
+    }
+
     if (loading) {
         return <div className="text-white">Loading...</div>;
     }
@@ -87,23 +170,23 @@ console.log(response.data.data);
 
   return (
     <div className="grid place-content-center relative">   
-        <div className='text-white bg-gray-box rounded-3xl  mt-10 mb-10  w-[70rem] relative '>
+        <div className='text-white bg-gray-box rounded-3xl  mt-10 mb-10  w-[70rem] relative border-2 border-gray-400/10'>
           <img src={userData.coverImage ? userData.coverImage : img} alt="CoverImage" className='rounded-t-3xl w-full h-[25rem] object-cover shadow-inner '/>
           <div>
-              <i  className="fa-regular fa-pen-to-square text-3xl absolute right-4 top-3 bg-black/70 rounded-md p-2 opacity-80 hover:opacity-100 active:opacity-80"></i>
+              <i onClick={()=>setChooseEditImages(!chooseEditImages)}  className="fa-regular fa-pen-to-square text-3xl absolute right-4 top-3 bg-black/70 rounded-md p-2 opacity-80 hover:opacity-100 active:opacity-80"></i>
           </div>
 
           <div>
           <motion.div
-              initial={{ height: "0px", width: "0px" }} 
-              animate={{ height:  "110px" , width:  "175px"  }} 
+              initial={{ height: "0px", width: "0px"}} 
+              animate={{ height:  chooseEditImages ? "110px" : "0px", width: chooseEditImages ? "175px" : "0px", display: chooseEditImages ? 'block' : 'none' }} 
               transition={{ duration: 0.2, }} 
               style={{ overflow: 'hidden' }}
               className="absolute border-2 border-gray-400/10 bg-background-all rounded-lg right-16 top-14 opacity-80 grid grid-rows-2 place-content-center">
-                    <div  className={`p-3 hover:bg-black/90 `}>
+                    <div onClick={()=>setEditCoverImageBox(!editCoverImageBox)} className={`p-3 hover:bg-black/90 `}>
                         Edit Cover Image
                     </div>
-                    <div className={`p-3 hover:bg-black/90 `}>
+                    <div onClick={()=>setEditAvatarBox(!editAvatarBox)} className={`p-3 hover:bg-black/90 `}>
                         Edit Avatar
                     </div>
             </motion.div>
@@ -113,7 +196,7 @@ console.log(response.data.data);
 
           <div className='-top-20 relative ml-[4rem] mr-[4rem] h-[5rem] grid grid-cols-5 gap-5'>
             <div className='bg-white/5 rounded-xl col-span-3 p-8 relative shadow-xl'>
-            <i class="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" ></i>
+            <i onClick={()=>setUpdateDetailBox(!updateDetailBox)} className="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" ></i>
             <p className='text-3xl font-semibold mb-3'>
             {userData.fullName}
               </p>
@@ -168,9 +251,9 @@ console.log(response.data.data);
               </Slider>
             </div>}
 
-            {channelVideo && channelVideo.length>0 && <div className=' m-8 mt-12'>
-              <div className='text-3xl'>Channel Videos</div>
-                <div className='grid grid-cols-3 gap-4 gap-y-7 place-content-center'>
+            {channelVideo && channelVideo.length>0 && <div className=' m-6 mt-20 mb-12'>
+              <div className='text-3xl ml-4'>Channel Videos</div>
+                <div className='grid grid-cols-3 gap-y-10 place-content-center mt-10'>
                   {
                     channelVideo.map((video, index)=>(
                       <div key={index}>
@@ -181,7 +264,9 @@ console.log(response.data.data);
                               title={video.title}
                               duration={video.duration}
                               views={video.views}
-                              className='w-[21rem]'
+                              edit = 'true'
+                              to = {video._id}
+                              className='w-[20rem]'
                               />
                           </div>
                         </Link>
@@ -191,7 +276,120 @@ console.log(response.data.data);
                 </div>
               </div>}
                 
-            
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: updateDetailBox ? 1 : 0 }} 
+                transition={{ duration: 0.1 }} 
+                className={`fixed top-0 left-0 right-0 bottom-0 z-20 bg-black/60 w-full h-full ${updateDetailBox ? 'grid' : 'hidden'} place-content-center`}
+              >
+                <motion.div 
+                  initial={{ y: 30 }} 
+                  animate={{ y: updateDetailBox ? 0 : 30 }} 
+                  transition={{ duration: 0.2, ease: "easeInOut" }} 
+                  className='bg-gray-box p-20 rounded-2xl relative'
+                >
+                  <i 
+                    className="fa-solid fa-xmark text-white absolute right-10 top-10 text-xl opacity-60 hover:opacity-90" 
+                    onClick={() => setUpdateDetailBox(!updateDetailBox)}
+                  ></i>
+                  
+                  <form onSubmit={handleSubmit(updateDeatils)}>
+                    <Input 
+                      label="Full Name:"
+                      {...register('fullName')}
+                      error={errors.fullName?.message}
+                      labelClassName="text-white"
+                    />
+                    <Input 
+                      label="Email:"
+                      type='email'
+                      {...register('email')}
+                      error={errors.email?.message}
+                      labelClassName="text-white"
+                    />
+                    <Button
+                      type='submit'
+                      className='mt-4'
+                    >
+                      Update
+                    </Button>
+                  </form>
+                </motion.div>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: editCoverImageBox ? 1 : 0 }} 
+                transition={{ duration: 0.1 }} 
+                className={`fixed top-0 left-0 right-0 bottom-0 z-20 bg-black/60 w-full h-full ${editCoverImageBox ? 'grid' : 'hidden'} place-content-center`}
+              >
+                <motion.div 
+                  initial={{ y: 30 }} 
+                  animate={{ y: editCoverImageBox ? 0 : 30 }} 
+                  transition={{ duration: 0.2, ease: "easeInOut" }} 
+                  className='bg-gray-box p-20 rounded-2xl relative'
+                >
+                  <i 
+                    className="fa-solid fa-xmark text-white absolute right-10 top-10 text-xl opacity-60 hover:opacity-90 bg-white/20 px-2 rounded-full" 
+                    onClick={() => setEditCoverImageBox(!editCoverImageBox)}
+                  ></i>
+                  
+                  <form onSubmit={handleSubmit(coverImageUpdate)}>
+                    <Input 
+                      label="Cover Image:"
+                      type='file'
+                      accept='image/*'
+                      {...register('coverImage', { required: 'CoverImage is required' })}
+                      error={errors.coverImage?.message}
+                      labelClassName="text-white"
+                    />
+                    
+                    <Button
+                      type='submit'
+                      className='mt-4'
+                    >
+                      Update
+                    </Button>
+                  </form>
+                </motion.div>
+              </motion.div>
+
+              <motion.div 
+                initial={{ opacity: 0 }} 
+                animate={{ opacity: editAvatarBox ? 1 : 0 }} 
+                transition={{ duration: 0.1 }} 
+                className={`fixed top-0 left-0 right-0 bottom-0 z-20 bg-black/60 w-full h-full ${editAvatarBox ? 'grid' : 'hidden'} place-content-center`}
+              >
+                <motion.div 
+                  initial={{ y: 30 }} 
+                  animate={{ y: editAvatarBox ? 0 : 30 }} 
+                  transition={{ duration: 0.2, ease: "easeInOut" }} 
+                  className='bg-gray-box p-20 rounded-2xl relative'
+                >
+                  <i 
+                    className="fa-solid fa-xmark text-white absolute right-10 top-10 text-xl opacity-60 hover:opacity-90 bg-white/20 px-2 rounded-full" 
+                    onClick={() => setEditAvatarBox(!editAvatarBox)}
+                  ></i>
+                  
+                  <form onSubmit={handleSubmit(updateAvatar)}>
+                    <Input 
+                      label="Avatar:"
+                      type='file'
+                      accept='image/*'
+                      {...register('avatar', { required: 'Avatar is required' })}
+                      error={errors.avatar?.message}
+                      labelClassName="text-white"
+                    />
+                    
+                    <Button
+                      type='submit'
+                      className='mt-4'
+                    >
+                      Update
+                    </Button>
+                  </form>
+                </motion.div>
+              </motion.div>
             
           </div>
     </div>
