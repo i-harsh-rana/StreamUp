@@ -209,7 +209,7 @@ function Dashboard() {
                 Joined: &nbsp; &nbsp; {timeCalculator(userData.createdAt)}
                 </p>
             </div>
-            <div className='bg-white/5 rounded-xl p-8 col-span-2 shadow-xl'>
+            <div className={`bg-white/5 rounded-xl p-8 col-span-2 shadow-xl ${channelVideo?.length > 0 ? 'block' : 'hidden'}`}>
               <p className='text-xl font-light mb-6 leading-loose'>
                 Total Channel Subscribers:<br/> {userData.subscribersCount}
               </p>
