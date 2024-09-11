@@ -1,17 +1,15 @@
 import React, { useRef, useEffect } from 'react';
 import videojs from 'video.js';
 import 'video.js/dist/video-js.css';
-import './videoPlayerStyle.css'; // Ensure this is correctly imported
+import './videoPlayerStyle.css';
 
-const VideoPlayer = ({ src, poster }) => {
+const VideoPlayer = ({ src, poster, width = '100%', height = 'auto' }) => {
   const videoRef = useRef(null);
-  let player;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       if (videoRef.current) {
-  
-        player = videojs(videoRef.current, {
+        const player = videojs(videoRef.current, {
           controls: true,
           autoplay: false,
           preload: 'auto',
@@ -26,7 +24,6 @@ const VideoPlayer = ({ src, poster }) => {
           ],
         });
   
-  
         return () => {
           if (player) {
             player.dispose();
@@ -35,14 +32,13 @@ const VideoPlayer = ({ src, poster }) => {
       } else {
         console.error('videoRef.current is null or undefined');
       }
-    }, 100); 
-  
+    }, 0); 
     return () => clearTimeout(timer);
   }, [src, poster]);
   
-  
+
   return (
-    <div data-vjs-player>
+    <div data-vjs-player style={{ width, height }}>
       <video ref={videoRef} className="video-js vjs-big-play-centered" />
     </div>
   );

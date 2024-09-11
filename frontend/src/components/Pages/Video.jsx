@@ -121,6 +121,8 @@ function Video() {
           <VideoPlayer
             src={videoData.videoFile}
             poster={videoData.thumbnail}
+            width='100%'
+            height='600px'
           />
         )}
         <div className='p-7'>

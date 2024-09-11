@@ -36,12 +36,12 @@ function VideoCardMini({
   return (
     <motion.div 
     whileHover={{ scale: 1.02 }} 
-    transition={{ duration: 0.3 }}
+    transition={{ duration: 0.2 }}
     className={`rounded-xl bg-white/5 h-60 grid relative hover:bg-white/10 w-[19rem] ml-5 border-2 border-gray-400/10 ${className}`}>
       
       <div className='flex justify-center items-center'>
       {edit && <Link to={`/video-manage/${to}`}><i class=" absolute fa-regular z-20 fa-pen-to-square text-lg bg-black/50 p-1 px-2 right-2 top-2 rounded-md hover:opacity-90 active:opacity-100"></i></Link> }
-      <i class="fa-solid fa-play absolute text-5xl z-10 opacity-50  hover:opacity-70"></i>
+      <i className="fa-solid fa-play absolute text-5xl z-10 opacity-50  hover:opacity-70"></i>
       <img src={thumbnail} className='h-[9rem] w-full object-cover rounded-t-xl col-span-2 relative ' />
       </div>
        

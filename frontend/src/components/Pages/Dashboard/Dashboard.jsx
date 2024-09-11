@@ -22,10 +22,13 @@ function Dashboard() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [updateDetailBox, setUpdateDetailBox] = useState(false);
-    const {register, handleSubmit, formState:{errors}, reset} = useForm();
+    const { register: registerUpdateDetails, handleSubmit: handleDetailsSubmit, formState: { errors: errorsDetails }, reset: resetDetails } = useForm();
+    const { register: registerUpdateAvatar, handleSubmit: handleAvatarSubmit, formState: { errors: errorsAvatar }, reset: resetAvatar } = useForm();
+    const { register: registerUpdateCoverImage, handleSubmit: handleCoverImageSubmit, formState: { errors: errorsCoverImage }, reset: resetCoverImage } = useForm();
     const [editAvatarBox, setEditAvatarBox] = useState(false);
     const [editCoverImageBox, setEditCoverImageBox] = useState(false);
     const [chooseEditImages, setChooseEditImages] = useState(false);
+
 
     const settings = {
       infinite: false,
@@ -76,42 +79,37 @@ function Dashboard() {
       }
     }
 
-    const updateDeatils = async (data) => {
+    const updateDetails = async (data) => {
+      
       if (!data.fullName && !data.email) {
-        return alert('At least one field (Full Name or Email) is required to update!');
+          return alert('At least one field (Full Name or Email) is required to update!');
       }
-    
-      const formData = {};
-    
-      if (data.fullName) {
-        formData.fullName = data.fullName;
-      }
-    
-      if (data.email) {
-        formData.email = data.email;
-      }
-    
-      const stringifiedData = qs.stringify(formData);
-    
-      try {
-        const response = await axios.patch('/api/v1/user/update-account', stringifiedData, {
-          headers:{
-            'Content-Type': 'application/x-www-form-urlencoded',
-            withCredentials: true
-          }
-        })
-        console.log(response.data.data)
-        if(response.status === 200){
-          setUpdateDetailBox(!updateDetailBox);  
-          reset();
-          setUserData({...userData, fullName: response.data.data.fullName, email: response.data.data.email});
-          
-        }
-      } catch (error) {
-        console.error('Update Fail:', error.response ? error.response.data : error.message);
-      }
-    }
 
+      const formData = {};
+      if (data.fullName) formData.fullName = data.fullName;
+      if (data.email) formData.email = data.email;
+
+
+      const stringifiedData = qs.stringify(formData);
+
+      try {
+          const response = await axios.patch('/api/v1/user/update-account', stringifiedData, {
+              headers: {
+                  'Content-Type': 'application/x-www-form-urlencoded',
+              },
+              withCredentials: true
+          });
+
+          if (response.status === 200) {
+              setUpdateDetailBox(false);
+              resetDetails();
+              setUserData({...userData, fullName: response.data.data.fullName, email: response.data.data.email});
+          }
+      } catch (error) {
+          console.error('Update Failed:', error);
+          console.error('Error response:', error.response);
+      }
+  }
     const updateAvatar = async(data)=>{
       const formData = new FormData()
       formData.append('avatar', data.avatar[0])
@@ -124,10 +122,10 @@ function Dashboard() {
         })
 
         if(response.status === 200){
-          console.log(response)
+          const newAvatar = `${response.data.data.avatar}?t=${new Date().getTime()}`;
           setEditAvatarBox(false);
-          reset();
-          setUserData({...userData, avatar: response.data.data.avatar})
+          resetAvatar();
+          setUserData({...userData, avatar: newAvatar})
         }
       } catch (error) {
         console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
@@ -147,9 +145,10 @@ function Dashboard() {
         })
 
         if(response.status === 200){
+          const newCoverImage = `${response.data.data.avatar}?t=${new Date().getTime()}`;
           setEditCoverImageBox(false);
-          reset();
-          setUserData({...userData, coverImage: response.data.data.coverImage})
+          resetCoverImage();
+          setUserData({...userData, coverImage: newCoverImage})
         }
       } catch (error) {
         console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
@@ -195,28 +194,28 @@ function Dashboard() {
           <img src={userData.avatar} alt="ProfileImage" className='w-[15rem] h-[15rem] rounded-full relative -top-[7rem] left-10 shadow-xl border-[0.5rem] object-cover border-gray-box ' />
 
           <div className='-top-20 relative ml-[4rem] mr-[4rem] h-[5rem] grid grid-cols-5 gap-5'>
-            <div className='bg-white/5 rounded-xl col-span-3 p-8 relative shadow-xl'>
-            <i onClick={()=>setUpdateDetailBox(!updateDetailBox)} className="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" ></i>
-            <p className='text-3xl font-semibold mb-3'>
-            {userData.fullName}
-              </p>
-              <p className='font-light opacity-80 mb-6'>
-              @{userData.username}<br/>
-              </p>
-              <p className='text-lg '>
-              Email: &nbsp; &nbsp; {userData.email}
-              </p>
-              <p className='text-lg opacity-50 absolute bottom-6'>
-              Joined: &nbsp; &nbsp; {timeCalculator(userData.createdAt)}
-              </p>
+            <div className={`bg-white/5 rounded-xl p-8 relative shadow-xl ${channelVideo?.length > 0 ? 'col-span-3' : 'col-span-5'}`}>
+              <i onClick={()=>setUpdateDetailBox(!updateDetailBox)} className="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" ></i>
+              <p className='text-3xl font-semibold mb-3'>
+              {userData.fullName}
+                </p>
+                <p className='font-light opacity-80 mb-6'>
+                @{userData.username}<br/>
+                </p>
+                <p className='text-lg '>
+                Email: &nbsp; &nbsp; {userData.email}
+                </p>
+                <p className='text-lg opacity-50 absolute bottom-6'>
+                Joined: &nbsp; &nbsp; {timeCalculator(userData.createdAt)}
+                </p>
             </div>
             <div className='bg-white/5 rounded-xl p-8 col-span-2 shadow-xl'>
-            <p className='text-xl font-light mb-6 leading-loose'>
-              Total Channel Subscribers:<br/> {userData.subscribersCount}
-            </p>
-            <p className='text-xl font-light leading-loose'>
-              Total Subscribed Channel:<br/>  {userData.subscribedChannelsCount}
-            </p>
+              <p className='text-xl font-light mb-6 leading-loose'>
+                Total Channel Subscribers:<br/> {userData.subscribersCount}
+              </p>
+              <p className='text-xl font-light leading-loose'>
+                Total Subscribed Channel:<br/>  {userData.subscribedChannelsCount}
+              </p>
             </div>
           </div>   
 
@@ -293,18 +292,18 @@ function Dashboard() {
                     onClick={() => setUpdateDetailBox(!updateDetailBox)}
                   ></i>
                   
-                  <form onSubmit={handleSubmit(updateDeatils)}>
+                  <form  onSubmit={handleDetailsSubmit(updateDetails)}>
                     <Input 
                       label="Full Name:"
-                      {...register('fullName')}
-                      error={errors.fullName?.message}
+                      {...registerUpdateDetails('fullName')}
+                      error={errorsDetails.fullName?.message}
                       labelClassName="text-white"
                     />
                     <Input 
                       label="Email:"
                       type='email'
-                      {...register('email')}
-                      error={errors.email?.message}
+                      {...registerUpdateDetails('email')}
+                      error={errorsDetails.email?.message}
                       labelClassName="text-white"
                     />
                     <Button
@@ -334,13 +333,13 @@ function Dashboard() {
                     onClick={() => setEditCoverImageBox(!editCoverImageBox)}
                   ></i>
                   
-                  <form onSubmit={handleSubmit(coverImageUpdate)}>
+                  <form onSubmit={handleCoverImageSubmit(coverImageUpdate)}>
                     <Input 
                       label="Cover Image:"
                       type='file'
                       accept='image/*'
-                      {...register('coverImage', { required: 'CoverImage is required' })}
-                      error={errors.coverImage?.message}
+                      {...registerUpdateCoverImage('coverImage', { required: 'CoverImage is required' })}
+                      error={errorsCoverImage.coverImage?.message}
                       labelClassName="text-white"
                     />
                     
@@ -371,13 +370,13 @@ function Dashboard() {
                     onClick={() => setEditAvatarBox(!editAvatarBox)}
                   ></i>
                   
-                  <form onSubmit={handleSubmit(updateAvatar)}>
+                  <form onSubmit={handleAvatarSubmit(updateAvatar)}>
                     <Input 
                       label="Avatar:"
                       type='file'
                       accept='image/*'
-                      {...register('avatar', { required: 'Avatar is required' })}
-                      error={errors.avatar?.message}
+                      {...registerUpdateAvatar('avatar', { required: 'Avatar is required' })}
+                      error={errorsAvatar.avatar?.message}
                       labelClassName="text-white"
                     />
                     

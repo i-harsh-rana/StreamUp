@@ -11,6 +11,7 @@ import Profile from "./components/Pages/Profile";
 import Video from "./components/Pages/Video";
 import UploadVideo from "./components/Pages/UploadVideo";
 import Dashboard from "./components/Pages/Dashboard/Dashboard";
+import VideoManage from "./components/Pages/VideoManage";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
         <Route path="/user-dashboard" element={<Dashboard/>}/>
 
         <Route path="/newvideo" element={<UploadVideo/>}/>
+        <Route path='/video-manage/:videoId' element={<VideoManage/>}/>
         
       </Routes>
       </main>
