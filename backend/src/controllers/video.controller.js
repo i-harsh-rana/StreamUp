@@ -228,12 +228,39 @@ const toggleVideoStatus = asyncHandler(async(req, res)=>{
 
 })
 
+const getChannelVideos = asyncHandler(async (req, res) => {
+    const { username } = req.params;
+
+    const user = await User.findOne({ username });
+
+    if (!user) {
+        throw new ApiError(404, "User not found");
+    }
+
+    const findAllVideoOfCurrentChannel = await Video.find({ owner: user._id });
+
+    if (findAllVideoOfCurrentChannel.length === 0) {
+        return res
+            .status(200)
+            .json(
+                new ApiResponse(200, null, "Channel doesn't have any videos")
+            );
+    }
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(200, findAllVideoOfCurrentChannel, "All videos fetched")
+        );
+});
+
 export {
     getAllVideo,
     publishAVideo,
     getVideoById,
     updateVideo,
     deleteVideo,
-    toggleVideoStatus
+    toggleVideoStatus,
+    getChannelVideos
 }
 
