@@ -11,7 +11,6 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login } from '../../../store/authSlice'
 import qs from 'qs'
-import { fetchCurrentUser } from '../../../store/userSlice'
 
 
 function Login() {
@@ -41,11 +40,8 @@ function Login() {
     
             if (response.status === 200) {
                 reset();
-                console.log(response.data.data.user);
-                
                 dispatch(login(response.data.data.user));
                 console.log("Dispatching login with:", response.data.data.user);
-                dispatch(fetchCurrentUser())
                 navigate('/profile');
             }
         } catch (error) {

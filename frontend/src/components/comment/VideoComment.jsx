@@ -15,7 +15,7 @@ function VideoComment({ videoId }) {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalComment, setTotalComment] = useState(0);
   const [totalPage, setTotalPage] = useState(1);
-  const user = useSelector((state) => state.user.userData);
+  const user = useSelector((state) => state.auth.userData);
   const [editingCommentId, setEditingCommentId] = useState(null);
   const [editedContent, setEditedContent] = useState('');
   const {register, handleSubmit, formState: {errors}, reset} = useForm()

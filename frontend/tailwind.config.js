@@ -22,7 +22,8 @@ export default {
         '950': '#490e27',
     },
       'background-all' : '#0E0E12',
-      'gray-box' : '#18181B'
+      'gray-box' : '#18181B',
+      'black-shade' : '#242427'
       }
     },
   },

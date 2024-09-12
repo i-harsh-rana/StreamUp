@@ -109,7 +109,8 @@ function Dashboard() {
           console.error('Update Failed:', error);
           console.error('Error response:', error.response);
       }
-  }
+    }
+
     const updateAvatar = async(data)=>{
       const formData = new FormData()
       formData.append('avatar', data.avatar[0])
@@ -131,7 +132,6 @@ function Dashboard() {
         console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
       }
     }
-
 
     const coverImageUpdate = async(data)=>{
       const formData = new FormData()
@@ -166,7 +166,6 @@ function Dashboard() {
     if (!userData) {
         return <div className="text-white">No user data available</div>;
     }
-    console.log(channelVideo);
 
   return (
     <div className="grid place-content-center relative">   

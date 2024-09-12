@@ -12,7 +12,7 @@ function LogoutBtn({className = ''}) {
 
     const handleLogout = async()=>{
         try {
-            const response = await axios.post('/api/v1/user/logout', {}, {
+            const response = await axios.post('/api/v1/user/logout', {
                 withCredentials: true
             } )
 
