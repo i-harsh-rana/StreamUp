@@ -29,10 +29,10 @@ const getChannelStats = asyncHandler(async (req, res) => {
         throw new ApiError(404, "User not found");
     }
 
-    const findVideosOfChannel = await Video.find({ owner: userId._id })
+    const findVideossOfChannel = await Video.find({ owner: userId._id })
         .select('-videoFile -description -owner');
 
-    if (findVideosOfChannel.length === 0) {
+    if (findVideossOfChannel.length === 0) {
         return res
             .status(200)
             .json(new ApiResponse(200, null, "Channel doesn't have any video"));
@@ -40,9 +40,20 @@ const getChannelStats = asyncHandler(async (req, res) => {
 
     const subscribersCount = await Subscription.countDocuments({ channel: userId._id });
     const subscribedChannelsCount = await Subscription.countDocuments({ subscriber: userId._id });
-    const videoId = findVideosOfChannel.map(video => video._id);
-    const videoLikes = await Like.countDocuments({ video: { $in: videoId } });
+    const videoIds = findVideossOfChannel.map(video => video._id);
 
+    const videoLikes = await Like.aggregate([
+        { $match: { video: { $in: videoIds } } },
+        { $group: { _id: '$video', likeCount: { $sum: 1 } } }
+    ]);
+
+    const videoLikesMap = new Map(videoLikes.map(item => [item._id.toString(), item.likeCount]));
+
+    const findVideosOfChannel = findVideossOfChannel.map(video => ({
+        ...video.toObject(),
+        likes: videoLikesMap.get(video._id.toString()) || 0
+    }));
+    
     return res
         .status(200)
         .json(new ApiResponse(200, {
@@ -51,7 +62,6 @@ const getChannelStats = asyncHandler(async (req, res) => {
                 watchHistory: user.watchHistory,
                 subscribersCount: subscribersCount,
                 subscribedChannelsCount: subscribedChannelsCount,
-                totalVideoLikes: videoLikes
             },
             findVideosOfChannel,
         }, "Channel stats fetched successfully"));
