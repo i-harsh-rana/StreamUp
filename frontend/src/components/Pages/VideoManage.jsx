@@ -1,12 +1,13 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import VideoPlayer from '../util/videoPlayer/VideoPlayer'
 import axios from 'axios';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import qs from 'qs';
 
 function VideoManage() {
     const {videoId} = useParams();
+    const navigate = useNavigate();
     const [videoData, setVideoData] = useState();
     const [loading, setLoading] = useState();
     const [error, setError] = useState();
@@ -83,6 +84,33 @@ function VideoManage() {
         }
     };
 
+    const handlePublish = async()=>{
+        try {
+            const response = await axios.patch(`/api/v1/video/toggleIsPublished/${videoId}`, {
+                withCredentials: true
+            })
+
+            if(response.status === 200){
+                setVideoData({...videoData, isPublished: !videoData.isPublished})
+            }
+        } catch (error) {
+            console.error("Error while toggle isPublish video", error);
+        }
+    }
+
+    const handleDeleteVideo = async()=>{
+        try {
+            const response = await axios.delete(`/api/v1/video/delete/${videoId}`, {
+                withCredentials: true
+            })
+            if(response.status === 200){
+                navigate('/user-dashboard')
+            }
+        } catch (error) {
+            console.error("Error while deleteing video", error);
+        }
+    }
+
     if (loading) {
         return <div className="text-white">Loading...</div>;
     }
@@ -97,8 +125,8 @@ function VideoManage() {
 
   return (
     <div className='w-full h-full grid place-content-center p-10'>
-        <div className='text-white w-[90rem] bg-gray-box border-2 border-gray-400/10 p-8 rounded-xl'>
-            <div className='text-3xl'>
+        <div className='relative text-white w-[90rem] bg-gray-box border-2 border-gray-400/10 p-8 rounded-xl'>
+            <div className='text-3xl my-5'>
                 Manage Video:
             </div>
             <div className='grid grid-cols-2'>
@@ -109,8 +137,8 @@ function VideoManage() {
                         width='600px' height='400px'
                     />
                 </div>
-                <div className='m-10 ml-0 grid relative'>
-                    <form onSubmit={handleSubmit(handleUpdateDetails)} className=' grid grid-rows-6'>
+                <div className='m-10 ml-0 grid grid-rows-8 relative'>
+                    <form onSubmit={handleSubmit(handleUpdateDetails)} className='row-span-7 grid grid-rows-7'>
                         <div className='p-2 row-span-2'>
                             {updateDetails ? 
                             <i onClick={()=>setUpdateDetails(!updateDetails)}  className="fa-solid fa-xmark absolute right-5 opacity-70 hover:opacity-90 active:opacity-70 text-2xl"></i>
@@ -130,7 +158,7 @@ function VideoManage() {
                                 <p className='mt-3 p-2'>{videoData.title}</p>
                             )}
                         </div>
-                        <div  className=' row-span-4 p-2 relative'>
+                        <div  className=' row-span-5 p-2 relative'>
                             <p className='text-xl'>Description:</p>
 
                             {updateDetails ? (
@@ -150,9 +178,14 @@ function VideoManage() {
                     </form>
                 </div>
             </div>
-            
-            
-
+            <div className='absolute top-14 right-14'>
+                            <button onClick={handleDeleteVideo} className='bg-red-700 p-2 px-3 rounded-lg shadow-xl hover:bg-red-600 active:bg-red-700'>
+                                Delete Video
+                            </button>
+                            <button onClick={handlePublish} className={`rounded-lg p-2 px-3 ml-10 shadow-xl ${videoData.isPublished ? 'bg-white text-black hover:bg-hopbush-100 active:bg-white' : 'bg-hopbush-main hover:bg-hopbush-600 active:bg-hopbush-main'}`}>
+                                {videoData.isPublished ? 'Unpublish' : 'Pubilsh'}
+                            </button>
+                    </div>
         </div>
     </div>
   )

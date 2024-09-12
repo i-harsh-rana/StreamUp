@@ -11,7 +11,8 @@ function VideoCardMini({
     ownerAvatar = "",
     className = '',
     edit = false,
-    to = ''
+    to = '',
+    videoLikes
 }) {
 
     function secondsToHHMMSS(seconds) {
@@ -54,6 +55,9 @@ function VideoCardMini({
             <div className='opacity-65 absolute right-3 bottom-3 font-light text-sm'>{views}&nbsp;views</div>
         </div>
         <div className='p-2 rounded-lg bg-black/50 absolute right-[0.4rem] top-[6.4rem] text-sm'>{durationStr}</div>
+        {videoLikes !== undefined && (
+                <div className='opacity-65 z-20 absolute right-3 bottom-14 font-light text-sm'>{videoLikes}&nbsp;likes</div>
+            )}
         
     </motion.div>
   )

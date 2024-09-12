@@ -166,6 +166,7 @@ function Dashboard() {
     if (!userData) {
         return <div className="text-white">No user data available</div>;
     }
+    console.log(channelVideo);
 
   return (
     <div className="grid place-content-center relative">   
@@ -265,6 +266,7 @@ function Dashboard() {
                               views={video.views}
                               edit = 'true'
                               to = {video._id}
+                              videoLikes={video.likes}
                               className='w-[20rem]'
                               />
                           </div>
