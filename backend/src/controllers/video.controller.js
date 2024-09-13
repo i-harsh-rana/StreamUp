@@ -8,55 +8,63 @@ import {uploadOnCloudinary} from '../utils/cloudinary.js'
 import {asyncHandler} from '../utils/asyncHandler.js'
 import { addVideoToWatchHistory} from '../middlewares/addVideoToHistory.middleware.js'
 
-const getAllVideo = asyncHandler(async(req, res)=>{
-    const {page = 1, limit = 10, query = '', sortBy = "createdAt", sortType = 'desc', userId} = req.query
-
-    const pipeline = []
-
-    if(userId){
-        pipeline.push({
-            $match: {
-                owner: new mongoose.Types.ObjectId(userId)
-            }
-        })
+const getAllVideo = asyncHandler(async (req, res) => {
+    const { page = 1, limit = 12, query = '', sortBy = "createdAt", sortType = 'desc', userId } = req.query;
+  
+    const pipeline = [];
+  
+    // Filter by userId if provided
+    if (userId) {
+      pipeline.push({
+        $match: {
+          owner: new mongoose.Types.ObjectId(userId)
+        }
+      });
     }
-
-    if(query.length > 0){
-        pipeline.push({
-            $match: {
-                $or: [
-                    {title: {$regex: query, $options: 'i'}},
-                    {description: {$regex: query, $options: 'i'}}
-                ]
-            }
-        })
+  
+    // Add query-based filtering on title or description
+    if (query.length > 0) {
+      pipeline.push({
+        $match: {
+          $or: [
+            { title: { $regex: query, $options: 'i' } },
+            { description: { $regex: query, $options: 'i' } }
+          ]
+        }
+      });
     }
-
-    const sortOptions = {[sortBy]: sortType === 'desc' ? -1 : 1}
-
+  
+    // Add filter to include only published videos
     pipeline.push({
-        $sort: sortOptions
-    })
-
-
+      $match: {
+        isPublished: true
+      }
+    });
+  
+    // Sorting options
+    const sortOptions = { [sortBy]: sortType === 'desc' ? -1 : 1 };
+    pipeline.push({
+      $sort: sortOptions
+    });
+  
+    // Pagination options
     const options = {
-        page: parseInt(page, 10),
-        limit: parseInt(limit, 10)
-    }
-
+      page: parseInt(page, 10),
+      limit: parseInt(limit, 10)
+    };
+  
     try {
-        const videos  = await Video.aggregatePaginate(Video.aggregate(pipeline), options)
-
-        return res
+      // Use aggregatePaginate to get paginated results
+      const videos = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
+  
+      return res
         .status(200)
-        .json(
-            new ApiResponse(200, videos, "Videos fetched successfully")
-        )
+        .json(new ApiResponse(200, videos, "Videos fetched successfully"));
     } catch (error) {
-        throw new ApiError(500, "Error in fetching videos")
+      throw new ApiError(500, "Error in fetching videos");
     }
-
-})
+  });
+  
 
 const publishAVideo = asyncHandler(async(req, res)=>{
 
