@@ -1,12 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import image from '../../assets/4.jpg'
-import { useDispatch, useSelector } from 'react-redux'
 import { useParams } from 'react-router-dom';
 import axios from 'axios';
 import timeCalculator from '../util/timeCalculator';
 import VideoCardMini from '../videoCards/VideoCardMini';
 import {Link} from 'react-router-dom'
-import {motion} from 'framer-motion'
+import {motion, AnimatePresence} from 'framer-motion'
 
 
 function Profile() {
@@ -16,6 +15,7 @@ function Profile() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [videoVisible, setVideoVisible] = useState(false);
+    const [avatarModalOpen, setAvatarModalOpen] = useState(false);
 
     const fetchProfileData = useCallback(async () => {
       setLoading(true);
@@ -73,6 +73,16 @@ function Profile() {
     }
   }
 
+  const getVideoSectionHeight = () => {
+    if (!channelVideos) return '6.5rem';
+    const videoCount = channelVideos.length;
+    const rowCount = Math.ceil(videoCount / 3);
+    const baseHeight = 6.5; 
+    const rowHeight = 20;
+    const calculatedHeight = baseHeight + rowCount * rowHeight;
+    return videoVisible ? `${Math.min(calculatedHeight, 60)}rem` : '6.5rem';
+  };
+
   if (loading) {
     return <div className="text-white">Loading...</div>;
   }
@@ -87,19 +97,25 @@ function Profile() {
     
   return (
     <div className="grid place-content-center relative">      
-      <div className='text-white bg-gray-box rounded-3xl mt-10 mb-10 w-[78rem] relative'>
+      <div className='text-white bg-gray-box border-2  border-gray-400/10 rounded-3xl mt-10 mb-10 w-[78rem] relative'>
         <img src={profileData.coveImage ? profileData.coveImage : image} alt="CoverImage" className='rounded-t-3xl w-full h-[25rem] object-cover shadow-inner '/>
-        <img src={profileData.avatar} alt="ProfileImage" className='w-[15rem] h-[15rem] rounded-full -mt-[7rem] ml-10 shadow-xl border-[0.5rem] object-cover border-gray-box ' />
-        
+        <motion.img 
+            src={profileData.avatar} 
+            alt="ProfileImage" 
+            className='w-[15rem] h-[15rem] rounded-full -mt-[7rem] ml-10 shadow-xl border-[0.5rem] object-cover border-gray-box cursor-pointer'
+            onClick={() => setAvatarModalOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+        />
         <button 
           onClick={() => subscribeToggle(profileData._id)} 
-          className={`shadow-xl absolute right-12 mr-5 top-[28rem] rounded-full active:opacity-70 p-4 px-10 ${profileData.isSubscribed ? 'bg-hopbush-main' : 'bg-white text-black'}`}>
+          className={`shadow-xl absolute right-12 mr-5 top-[28rem] border-2  border-gray-400/10 rounded-full active:opacity-70 p-4 px-10 ${profileData.isSubscribed ? 'bg-hopbush-main' : 'bg-white text-black'}`}>
           {profileData.isSubscribed ? 'Subscribed' : 'Subscribe'}
         </button>
         
         <div className='mx-[4rem] grid grid-cols-5 gap-5 mt-7'>
 
-          <div className='bg-white/5 rounded-xl col-span-3 p-8 shadow-xl h-[15.5rem] relative'>
+          <div className='bg-white/5 rounded-xl col-span-3 p-8 shadow-xl h-[15.5rem] relative border-2  border-gray-400/10'>
             <p className='text-3xl font-semibold mb-3'>
               {profileData.fullName}
             </p>
@@ -114,7 +130,7 @@ function Profile() {
             </p>
           </div>
           
-          <div className='bg-white/5 rounded-xl p-8 col-span-2 shadow-xl h-[15.5rem]'>
+          <div className='bg-white/5 rounded-xl p-8 col-span-2 shadow-xl h-[15.5rem] border-2  border-gray-400/10'>
             <p className='text-xl font-light mb-6 leading-loose'>
               Total Channel Subscribers:<br/> 
               {profileData.subscribersCount}
@@ -127,33 +143,62 @@ function Profile() {
         </div>
         
         {channelVideos && channelVideos.length > 0 && (
-          <motion.div  
-          initial={{height: '6.5rem'}}
-          animate={{height: videoVisible ? '60rem' : '6.5rem'}}
-          transition={{duration: 0.3, ease: 'easeInOut'}}
-          className={`relative bg-white/5 shadow-xl rounded-xl mt-10 grid mx-[4rem] mb-16 ${videoVisible ? 'overflow-y-scroll scrollbar-thin scrollbar-thumb-background-all scrollbar-track-gray-box' : 'overflow-hidden '}`}>
-            <div onClick={()=>setVideoVisible(!videoVisible)} className='sticky bg-black-shade top-0 text-2xl px-9 py-9 h-[6.5rem] z-20 flex justify-between'>
-              Channel Videos
-              {videoVisible ? <i className="fa-solid fa-angle-down"></i> : <i className={`fa-solid fa-angle-up ${!videoVisible && 'mr-3'}`}></i>}
-            </div>
-            <div className='grid grid-cols-3 mt-10 gap-y-10 place-content-center ml-5 mb-8'>
-              {channelVideos.map((video, index) => (
-                <Link to={`/video/${video._id}`} key={index}>
-                  <VideoCardMini
-                    thumbnail={video.thumbnail}
-                    title={video.title}
-                    duration={video.duration}
-                    views={video.views}
-                    to={video._id}
-                    videoLikes={video.likes}
-                    className='w-[15rem]'
-                  />
-                </Link>
-              ))}
-            </div>
-          </motion.div>
-        )}
+                <motion.div  
+                    initial={{height: '6.5rem'}}
+                    animate={{height: getVideoSectionHeight()}}
+                    transition={{duration: 0.3, ease: 'easeInOut'}}
+                    className={`relative bg-white/5 shadow-xl rounded-xl mt-10 grid mx-[4rem] border-2  border-gray-400/10 mb-16 ${videoVisible ? 'overflow-y-auto scrollbar-thin scrollbar-thumb-background-all scrollbar-track-gray-box' : 'overflow-hidden'}`}
+                >
+                    <div onClick={()=>setVideoVisible(!videoVisible)} className='sticky bg-black-shade top-0 text-2xl px-9 py-9 h-[6.5rem] z-20 flex justify-between'>
+                        Channel Videos
+                        {videoVisible ? <i className="fa-solid fa-angle-down"></i> : <i className={`fa-solid fa-angle-up ${!videoVisible && 'mr-3'}`}></i>}
+                    </div>
+                    <div className='grid grid-cols-3  gap-y-10 place-content-start ml-5 mb-8'>
+                        {channelVideos.map((video, index) => (
+                            <Link to={`/video/${video._id}`} key={index}>
+                                <VideoCardMini
+                                    thumbnail={video.thumbnail}
+                                    title={video.title}
+                                    duration={video.duration}
+                                    views={video.views}
+                                    to={video._id}
+                                    videoLikes={video.likes}
+                                    className='w-[15rem]'
+                                />
+                            </Link>
+                        ))}
+                    </div>
+                </motion.div>
+            )}
       </div>
+
+
+      <AnimatePresence>
+          {avatarModalOpen && (
+              <motion.div 
+                  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setAvatarModalOpen(false)}
+              >
+                  <motion.div
+                      className="bg-gray-box p-4 rounded-lg"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      onClick={(e) => e.stopPropagation()}
+                  >
+                      <img 
+                          src={profileData.avatar} 
+                          alt="ProfileImage" 
+                          className="w-[30rem] h-[30rem] object-cover rounded-lg"
+                      />
+                  </motion.div>
+              </motion.div>
+          )}
+      </AnimatePresence>
     </div>
 
   )

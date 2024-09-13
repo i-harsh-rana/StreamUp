@@ -40,7 +40,7 @@ function ChangePassword() {
     }
 
   return (
-    <div className= 'text-white w-full gri place-content-center'>
+    <div className= 'text-white w-full place-content-center'>
         <div className='h-full grid place-content-center mt-[6rem] mb-[6rem]'>
             <div className='p-10 bg-gray-box rounded-xl border-2  border-gray-400/10 shadow-3xl '>
             <div className='w-full grid place-content-center mb-10'>

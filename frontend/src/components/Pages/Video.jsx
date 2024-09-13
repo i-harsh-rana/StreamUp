@@ -130,7 +130,9 @@ function Video() {
             {videoData.title} 
           </div>
           <div className='grid grid-cols-12 gap-4 mb-8 w-full'>
+          <Link to={`/profile/${videoData.owner.username}`}>
             <img src={videoData.owner.avatar} className='w-12 h-12 rounded-full' alt='Owner avatar' />
+            </Link>
             <div className='col-span-2'>
               <Link to={`/profile/${videoData.owner.username}`}>
                  <p className='text-xl'>{videoData.owner.fullName}</p>

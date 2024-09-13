@@ -1,104 +1,160 @@
-import React, { useState } from 'react'
-import Logo from '../../assets/StreamUp.svg'
-import LogoutBtn from './LogoutBtn'
-import { Link, useNavigate } from 'react-router-dom'
-import { useDispatch, useSelector } from 'react-redux'
-import Button from '../util/Button'
-import {motion} from 'framer-motion'
+import React, { useState, useRef, useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import Logo from '../../assets/StreamUp.svg';
+import LogoutBtn from './LogoutBtn';
 
+// Custom Button component
+const Button = ({ children, onClick, className = '', variant = 'default' }) => {
+  const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors duration-200';
+  const variantStyles = {
+    default: 'bg-blue-600 text-white hover:bg-blue-700',
+    ghost: 'text-gray-300 hover:bg-gray-800 hover:text-white',
+  };
 
-function Header() {
+  return (
+    <button
+      onClick={onClick}
+      className={`${baseStyles} ${variantStyles[variant]} ${className}`}
+    >
+      {children}
+    </button>
+  );
+};
+
+// Custom Dropdown component
+const Dropdown = ({ trigger, children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
+  return (
+    <div className="relative" ref={dropdownRef}>
+      <div onClick={() => setIsOpen(!isOpen)}>{trigger}</div>
+      {isOpen && (
+        <div className="absolute right-0 mt-2 w-56 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+          <div className="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
+            {children}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+function Header({ onSearch }) {
   const navigate = useNavigate();
-  const authStatus = useSelector((state) => state.auth.status) 
-  const userData = useSelector((state)=> state.auth.userData)
-  const [dropDown, setDropDown] = useState(false)
+  const authStatus = useSelector((state) => state.auth.status);
+  const userData = useSelector((state) => state.auth.userData);
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const avatar = userData?.avatar || "N/A"
-  const fullName = userData?.fullName || "N/A"
+  const avatar = userData?.avatar || '';
+  const fullName = userData?.fullName || 'User';
 
-  const handleDropDown = ()=>{
-    setDropDown(!dropDown);
-  }
-  
   const navLinks = [
     {
       name: 'Explore',
       link: '/videos',
-      active: authStatus
+      active: authStatus,
     },
     {
       name: 'Login',
       link: '/login',
-      active: !authStatus
+      active: !authStatus,
     },
     {
       name: 'Register',
       link: '/signup',
-      active: !authStatus
-    }
-  ]
+      active: !authStatus,
+    },
+  ];
 
-const handleProfileClick = ()=>{
-  if(userData){
-    navigate(`/profile/${userData.username}`)
-  }else{
-    navigate('/login')
-  }
-}
+  const handleProfileClick = () => {
+    if (userData) {
+      navigate(`/user-dashboard`);
+    } else {
+      navigate('/login');
+    }
+  };
+
+  const handleSearch = (e) => {
+    e.preventDefault();
+    onSearch(searchQuery);
+  };
 
   return (
-    <header className='sticky top-0 z-30 bg-gray-box opacity-100 w-full p-5 pl-6 border-l-8 border-l-hopbush-main border-b-2 border-b-gray-400/10 flex'>
-
-        <Link to='/' className='place-content-center'>
-        <img src={Logo} alt="" className='w-[11rem]'/>
+    <header className="sticky top-0 z-30 w-full bg-gray-900 border-b border-gray-800">
+      <div className="container mx-auto px-4 py-3 flex items-center justify-between">
+        <Link to="/" className="flex items-center">
+          <img src={Logo} alt="StreamUp Logo" className="h-8 w-auto" />
         </Link>
 
-        <ul className='pt-8 md:pt-0 flex ml-auto'>
-            {navLinks.map((item) => 
-            item.active ? (
-              <li key={item.name}>
-                <Button
-                className='ml-5 mr-5'
-                onClick={() => navigate(item.link)}
-                children={item.name} />
-              </li>
-            ) : null
-            )}
-            {authStatus && (
-              <li>
-                  <div className=' text-white cursor-pointer h-[100%] p-3 grid grid-cols-2 place-content-center bg-background-all rounded-xl border-2 border-gray-400/10 shadow-inner active:bg-gray-box' onClick={handleDropDown}>
-                    <div className='place-content-center ml-2 '><i className={`uis ${dropDown ? 'uis-angle-down' : 'uis-angle-up'} text-2xl mr-4`}></i>{fullName}</div>
-                    <div><img src={avatar} alt="avatar" className='w-[3rem] h-[3rem] ml-6 rounded-full object-cover' /></div>
-                  </div>
-                  <motion.div
-                    initial={{ height: "0px", width: "0px" }} 
-                    animate={{ height: dropDown ? "130px" : "0px", width: dropDown ? "181px" : "0px" }} 
-                    transition={{ duration: 0.3, }} 
-                    style={{ overflow: 'hidden' }}
-                    className="absolute border-2 border-gray-400/10 bg-background-all rounded-lg"
-                  >
-                    <div className='w-[11rem] grid place-content-center grid-rows-2 '>
-                      <motion.div 
-                      initial={{y: -9, opacity: 0}}
-                      animate={{y: dropDown ? 0 : -9, opacity: dropDown ? 1 : 0}}
-                      transition={{duration: 0.2, delay: 0.3, type: 'spring', stiffness: 100, damping: 13}}
-                      className='w-[12rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
-                        <div onClick={handleProfileClick} className='text-white block '>My Profile<i className="fa-regular fa-user ml-6"></i></div>
-                      </motion.div>
-                      <motion.div 
-                      initial={{y: -9, opacity: 0}}
-                      animate={{y: dropDown ? 0 : -9, opacity: dropDown ? 1 : 0}}
-                      transition={{duration: 0.2, delay: 0.3, type: 'spring', stiffness: 100, damping: 13}}
-                      className='w-[12rem] h-[4rem] flex items-center justify-center p-5 hover:bg-gray-box rounded-lg'>
-                        <LogoutBtn /><i className="fa-solid fa-arrow-right-from-bracket ml-6 text-white"></i>
-                      </motion.div>
+        <form onSubmit={handleSearch} className="flex-grow max-w-md mx-4">
+          <div className="relative">
+            <input
+              type="search"
+              placeholder="Search videos..."
+              className="w-full pl-10 pr-4 py-2 bg-gray-800 text-white rounded-md focus:outline-none focus:ring-2 focus:ring-blue-600"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+              🔍
+            </span>
+          </div>
+        </form>
+
+        <nav className="flex items-center space-x-4">
+          {navLinks.map(
+            (item) =>
+              item.active && (
+                <Button key={item.name} variant="ghost" onClick={() => navigate(item.link)}>
+                  {item.name}
+                </Button>
+              )
+          )}
+
+          {authStatus && (
+            <Dropdown
+              trigger={
+                <button className="relative h-8 w-8 rounded-full overflow-hidden">
+                  {avatar ? (
+                    <img src={avatar} alt={fullName} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="h-full w-full bg-gray-600 flex items-center justify-center text-white">
+                      {fullName.charAt(0)}
                     </div>
-                  </motion.div>
-              </li>
-            )}
-          </ul>
+                  )}
+                </button>
+              }
+            >
+              <button
+                className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900 w-full text-left"
+                onClick={handleProfileClick}
+              >
+                Dashboard
+              </button>
+              <div className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 hover:text-gray-900">
+                <LogoutBtn />
+              </div>
+            </Dropdown>
+          )}
+        </nav>
+      </div>
     </header>
-  )
+  );
 }
 
-export default Header
+export default Header;

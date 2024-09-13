@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import img from '../../../assets/4.jpg'
-import {motion} from 'framer-motion'
+import {motion, AnimatePresence} from 'framer-motion'
 import axios from 'axios'
 import timeCalculator from '../../util/timeCalculator'
 import VideoCardMini from '../../videoCards/VideoCardMini'
@@ -28,6 +28,8 @@ function Dashboard() {
     const [editAvatarBox, setEditAvatarBox] = useState(false);
     const [editCoverImageBox, setEditCoverImageBox] = useState(false);
     const [chooseEditImages, setChooseEditImages] = useState(false);
+    const [avatarModalOpen, setAvatarModalOpen] = useState(false);
+    const [dashboardMenu, setDashboardMenu] = useState(false);
 
 
     const settings = {
@@ -191,10 +193,38 @@ function Dashboard() {
             </motion.div>
           </div>
          
-          <img src={userData.avatar} alt="ProfileImage" className='w-[15rem] h-[15rem] rounded-full relative -top-[7rem] left-10 shadow-xl border-[0.5rem] object-cover border-gray-box ' />
+          <motion.img 
+            src={userData.avatar} 
+            alt="ProfileImage" 
+            className='w-[15rem] h-[15rem] rounded-full -mt-[7rem] ml-10 shadow-xl border-[0.5rem] object-cover border-gray-box cursor-pointer'
+            onClick={() => setAvatarModalOpen(true)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+        />
 
-          <div className='-top-20 relative ml-[4rem] mr-[4rem] h-[5rem] grid grid-cols-5 gap-5'>
-            <div className={`bg-white/5 rounded-xl p-8 relative shadow-xl ${channelVideo?.length > 0 ? 'col-span-3' : 'col-span-5'}`}>
+        <i onClick={()=>setDashboardMenu(!dashboardMenu)} className="fa-solid fa-ellipsis-vertical absolute right-24 top-[29rem] text-xl p-3 hover:bg-background-all rounded-lg cursor-pointer z-30"></i>
+        <motion.div 
+        initial={{height: 0, opacity: 0}}
+        animate={{ height: dashboardMenu ? 'auto' : 0, opacity: dashboardMenu ? 1 : 0 }}
+        transition={{ duration: 0.2, ease: 'easeInOut' }}
+        className={`absolute bg-black w-[12rem] border-2 border-gray-400/10 rounded-xl -right-[6rem] top-[32rem]`}>
+          <ul>
+              <motion.li 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: dashboardMenu ? 1 : 0, y: dashboardMenu ? 0 : -20 }}
+                transition={{ duration: 0.2, delay: 0.2, ease: 'easeInOut' }}
+                className='p-5 cursor-pointer'
+              >
+                <Link to='/user/change-password' className="block w-full h-full">
+                  Change Password
+                </Link>
+              </motion.li>
+          </ul>
+        </motion.div>
+
+
+          <div className='-top-20 relative ml-[4rem] mr-[4rem] h-[5rem] grid grid-cols-5 gap-5 mt-28'>
+            <div className={`bg-white/5 rounded-xl p-8 relative shadow-xl border-2  border-gray-400/10 ${channelVideo?.length > 0 ? 'col-span-3' : 'col-span-5'}`}>
               <i onClick={()=>setUpdateDetailBox(!updateDetailBox)} className="fa-regular fa-pen-to-square absolute right-8 text-xl opacity-60 hover:opacity-90 cursor-pointer" ></i>
               <p className='text-3xl font-semibold mb-3'>
               {userData.fullName}
@@ -209,7 +239,7 @@ function Dashboard() {
                 Joined: &nbsp; &nbsp; {timeCalculator(userData.createdAt)}
                 </p>
             </div>
-            <div className={`bg-white/5 rounded-xl p-8 col-span-2 shadow-xl ${channelVideo?.length > 0 ? 'block' : 'hidden'}`}>
+            <div className={`bg-white/5 rounded-xl p-8 col-span-2 border-2  border-gray-400/10 shadow-xl ${channelVideo?.length > 0 ? 'block' : 'hidden'}`}>
               <p className='text-xl font-light mb-6 leading-loose'>
                 Total Channel Subscribers:<br/> {userData.subscribersCount}
               </p>
@@ -393,6 +423,33 @@ function Dashboard() {
             
           </div>
     </div>
+
+    <AnimatePresence>
+          {avatarModalOpen && (
+              <motion.div 
+                  className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  onClick={() => setAvatarModalOpen(false)}
+              >
+                  <motion.div
+                      className="bg-gray-box p-4 rounded-lg"
+                      initial={{ scale: 0.5, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      exit={{ scale: 0.5, opacity: 0 }}
+                      transition={{ type: "spring", stiffness: 300, damping: 25 }}
+                      onClick={(e) => e.stopPropagation()}
+                  >
+                      <img 
+                          src={userData.avatar} 
+                          alt="ProfileImage" 
+                          className="w-[30rem] h-[30rem] object-cover rounded-lg"
+                      />
+                  </motion.div>
+              </motion.div>
+          )}
+      </AnimatePresence>
     
     </div>
   )
