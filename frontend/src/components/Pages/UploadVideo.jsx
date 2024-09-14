@@ -38,7 +38,7 @@ function UploadVideo() {
                 setFinalAnimation(true);
                 setTimeout(() => {
                     setFinalAnimation(false);
-                    navigate('/videos')}, 2000); 
+                    navigate('/user-dashboard')}, 2000); 
             }
         } catch (error) {
             console.error("Error while Uploading", error.response?.data, error.response?.status);

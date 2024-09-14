@@ -14,6 +14,7 @@ import Input from '../../util/Input';
 import Button from '../../util/Button'
 import qs from 'qs';
 import { useCallback } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 function Dashboard() {
     const [userData, setUserData] = useState(null);
@@ -30,6 +31,7 @@ function Dashboard() {
     const [chooseEditImages, setChooseEditImages] = useState(false);
     const [avatarModalOpen, setAvatarModalOpen] = useState(false);
     const [dashboardMenu, setDashboardMenu] = useState(false);
+    const navigate = useNavigate();
 
 
     const settings = {
@@ -201,8 +203,9 @@ function Dashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
         />
+        <button onClick={()=>navigate('/newvideo')} className='bg-hopbush-main p-3 px-5 rounded-full absolute right-[10rem] top-[28rem] flex justify-center items-center hover:bg-hopbush-main/70 active:bg-hopbush-main'><i className="fa-solid fa-cloud-arrow-up mr-3 text-2xl"></i>Publish Video</button>
 
-        <i onClick={()=>setDashboardMenu(!dashboardMenu)} className="fa-solid fa-ellipsis-vertical absolute right-24 top-[29rem] text-xl p-3 hover:bg-background-all rounded-lg cursor-pointer z-30"></i>
+        <i onClick={()=>setDashboardMenu(!dashboardMenu)} className="fa-solid fa-ellipsis-vertical absolute right-24 top-[28rem] text-xl p-3 hover:bg-background-all rounded-lg cursor-pointer z-30"></i>
         <motion.div 
         initial={{height: 0, opacity: 0}}
         animate={{ height: dashboardMenu ? 'auto' : 0, opacity: dashboardMenu ? 1 : 0 }}

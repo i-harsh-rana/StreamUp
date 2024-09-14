@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 import Header from './components/Header/Header'
 import Footer from "./components/Footer/Footer";
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
@@ -12,27 +12,35 @@ import Video from "./components/Pages/Video";
 import UploadVideo from "./components/Pages/UploadVideo";
 import Dashboard from "./components/Pages/Dashboard/Dashboard";
 import VideoManage from "./components/Pages/VideoManage";
+import AuthLayout from './components/AuthLayout'
 
 function App() {
+
+  const [query, setQuery] = useState('');
+
+  const handleSearch = (searchQuery) => {
+    setQuery(searchQuery);
+  };
+
+
   return (
     <Router>
       <div className="min-h-screen flex flex-col">
-      <Header />
+      <Header onSearch={handleSearch} />
       <main className="flex-grow">
       <Routes>
-        {/* General Routes */}
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/user/change-password" element={<ChangePassword />} />
-        <Route path="/profile/:username" element={<Profile />} />
+        <Route path="/user/change-password" element={<AuthLayout><ChangePassword /></AuthLayout> } />
+        <Route path="/profile/:username" element={<AuthLayout><Profile /></AuthLayout> } />
 
-        <Route path="/videos" element={<AllVideos />} />
-        <Route path="/video/:videoId" element={<Video/>} />
+        <Route path="/videos" element={<AuthLayout><AllVideos query={query} /></AuthLayout>} />
+        <Route path="/video/:videoId" element={<AuthLayout><Video/></AuthLayout>} />
         <Route path="/user-dashboard" element={<Dashboard/>}/>
 
-        <Route path="/newvideo" element={<UploadVideo/>}/>
-        <Route path='/video-manage/:videoId' element={<VideoManage/>}/>
+        <Route path="/newvideo" element={<AuthLayout><UploadVideo/></AuthLayout>}/>
+        <Route path='/video-manage/:videoId' element={<AuthLayout><VideoManage/></AuthLayout>}/>
         
       </Routes>
       </main>

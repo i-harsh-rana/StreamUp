@@ -42,7 +42,7 @@ function Login() {
                 reset();
                 dispatch(login(response.data.data.user));
                 console.log("Dispatching login with:", response.data.data.user);
-                navigate('/profile');
+                navigate('/videos');
             }
         } catch (error) {
             console.error('Login failed:', error.response ? error.response.data : error.message);
