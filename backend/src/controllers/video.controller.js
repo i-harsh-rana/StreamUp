@@ -9,61 +9,73 @@ import {asyncHandler} from '../utils/asyncHandler.js'
 import { addVideoToWatchHistory} from '../middlewares/addVideoToHistory.middleware.js'
 
 const getAllVideo = asyncHandler(async (req, res) => {
-    const { page = 1, limit = 12, query = '', sortBy = "createdAt", sortType = 'desc', userId } = req.query;
+    const { page = 1, limit = 12, query = '', sortBy = "createdAt", sortType = 'desc', username } = req.query;
   
     const pipeline = [];
   
-    // Filter by userId if provided
-    if (userId) {
-      pipeline.push({
-        $match: {
-          owner: new mongoose.Types.ObjectId(userId)
-        }
-      });
-    }
-  
-    // Add query-based filtering on title or description
-    if (query.length > 0) {
-      pipeline.push({
-        $match: {
-          $or: [
-            { title: { $regex: query, $options: 'i' } },
-            { description: { $regex: query, $options: 'i' } }
-          ]
-        }
-      });
-    }
-  
-    // Add filter to include only published videos
-    pipeline.push({
-      $match: {
-        isPublished: true
-      }
-    });
-  
-    // Sorting options
-    const sortOptions = { [sortBy]: sortType === 'desc' ? -1 : 1 };
-    pipeline.push({
-      $sort: sortOptions
-    });
-  
-    // Pagination options
-    const options = {
-      page: parseInt(page, 10),
-      limit: parseInt(limit, 10)
-    };
-  
     try {
-      // Use aggregatePaginate to get paginated results
+      // Step 1: Find the userId by username if the username is provided
+      if (username) {
+        const user = await User.findOne({ username }).select('_id');
+        if (user) {
+          pipeline.push({
+            $match: {
+              owner: user._id
+            }
+          });
+        } else {
+          return res.status(404).json(new ApiResponse(404, null, "User not found"));
+        }
+      }
+  
+      // Step 2: Add query-based filtering on title or description
+      if (query.length > 0) {
+        pipeline.push({
+          $match: {
+            $or: [
+              { title: { $regex: query, $options: 'i' } },
+              { description: { $regex: query, $options: 'i' } }
+            ]
+          }
+        });
+      }
+  
+      // Step 3: Add filter to include only published videos
+      pipeline.push({
+        $match: {
+          isPublished: true
+        }
+      });
+  
+      // Step 4: Sorting options
+      const sortOptions = { [sortBy]: sortType === 'desc' ? -1 : 1 };
+      pipeline.push({
+        $sort: sortOptions
+      });
+  
+      // Step 5: Pagination options
+      const options = {
+        page: parseInt(page, 10),
+        limit: parseInt(limit, 10)
+      };
+  
+      // Step 6: Fetch paginated results
       const videos = await Video.aggregatePaginate(Video.aggregate(pipeline), options);
   
+      // Step 7: Populate the owner field with fullName
+      await Video.populate(videos.docs, { path: 'owner', select: 'fullName' });
+  
+      // Step 8: Return the response
       return res
         .status(200)
         .json(new ApiResponse(200, videos, "Videos fetched successfully"));
     } catch (error) {
+      console.error("Error in fetching videos:", error);
       throw new ApiError(500, "Error in fetching videos");
     }
   });
+  
+  
   
 
 const publishAVideo = asyncHandler(async(req, res)=>{
