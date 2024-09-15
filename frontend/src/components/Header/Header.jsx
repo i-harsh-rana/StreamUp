@@ -81,6 +81,7 @@ function Header({ onSearch }) {
     e.preventDefault();
       onSearch(searchQuery);
       setHasSearched(true);
+      navigate('/videos')
   
   };
 

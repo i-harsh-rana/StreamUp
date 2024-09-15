@@ -3,6 +3,7 @@ import axios from 'axios';
 import timeCalculator from '../util/timeCalculator';
 import { useNavigate } from 'react-router-dom';
 import {motion} from 'framer-motion'
+import secondsToHHMMSS from '../util/durationFormat';
 
 const AllVideos = ({ query }) => {
   const [videos, setVideos] = useState([]);
@@ -99,12 +100,13 @@ const AllVideos = ({ query }) => {
             transition={{ duration: 0.2 }}
             key={video._id} 
             onClick={()=>navigate(`/video/${video._id}`)} 
-            className="bg-gray-box border-2 cursor-pointer border-gray-400/10 text-white rounded-lg shadow-md overflow-hidden">
+            className="bg-gray-box relative border-2 cursor-pointer border-gray-400/10 text-white rounded-lg shadow-md overflow-hidden">
               <img loading='lazy' src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover" />
               <div className="p-4">
                 <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
                 <p className="text-xs mb-1 text-white/70">{video.owner?.fullName || 'Unknown'}</p>
                 <p className="text-xs mb-1 text-white/70">{video.views}&nbsp;Views &nbsp;&nbsp;&nbsp;{timeCalculator(video.createdAt)}</p>
+                <p className='absolute right-[0.5rem] top-[10rem] bg-black/50 rounded-md px-2 text-sm'>{secondsToHHMMSS(video.duration)}</p>
               </div>
             </motion.div>
           ))

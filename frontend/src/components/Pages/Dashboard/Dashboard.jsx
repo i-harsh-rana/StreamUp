@@ -203,14 +203,14 @@ function Dashboard() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
         />
-        <button onClick={()=>navigate('/newvideo')} className='bg-hopbush-main p-3 px-5 rounded-full absolute right-[10rem] top-[28rem] flex justify-center items-center hover:bg-hopbush-main/70 active:bg-hopbush-main'><i className="fa-solid fa-cloud-arrow-up mr-3 text-2xl"></i>Publish Video</button>
+        <button onClick={()=>navigate('/newvideo')} className='bg-hopbush-main p-3 px-5 rounded-full absolute right-[8rem] top-[28rem] flex justify-center items-center hover:bg-hopbush-main/70 active:bg-hopbush-main'><i className="fa-solid fa-cloud-arrow-up mr-3 text-2xl"></i>Publish Video</button>
 
-        <i onClick={()=>setDashboardMenu(!dashboardMenu)} className="fa-solid fa-ellipsis-vertical absolute right-24 top-[28rem] text-xl p-3 hover:bg-background-all rounded-lg cursor-pointer z-30"></i>
+        <i onClick={()=>setDashboardMenu(!dashboardMenu)} className="fa-solid fa-ellipsis-vertical absolute right-[4rem] top-[28rem] text-xl p-3 hover:bg-background-all rounded-lg cursor-pointer z-30"></i>
         <motion.div 
         initial={{height: 0, opacity: 0}}
         animate={{ height: dashboardMenu ? 'auto' : 0, opacity: dashboardMenu ? 1 : 0 }}
         transition={{ duration: 0.2, ease: 'easeInOut' }}
-        className={`absolute bg-black w-[12rem] border-2 border-gray-400/10 rounded-xl -right-[6rem] top-[32rem]`}>
+        className={`absolute bg-black w-[12rem] border-2 border-gray-400/10 rounded-xl -right-[7.7rem] top-[31rem]`}>
           <ul>
               <motion.li 
                 initial={{ opacity: 0, y: -20 }}
@@ -220,6 +220,16 @@ function Dashboard() {
               >
                 <Link to='/user/change-password' className="block w-full h-full">
                   Change Password
+                </Link>
+              </motion.li>
+              <motion.li 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: dashboardMenu ? 1 : 0, y: dashboardMenu ? 0 : -20 }}
+                transition={{ duration: 0.2, delay: 0.2, ease: 'easeInOut' }}
+                className='p-5 cursor-pointer'
+              >
+                <Link to='/user/playlists' className="block w-full h-full">
+                  Playlists
                 </Link>
               </motion.li>
           </ul>

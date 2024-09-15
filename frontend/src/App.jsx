@@ -13,6 +13,7 @@ import UploadVideo from "./components/Pages/UploadVideo";
 import Dashboard from "./components/Pages/Dashboard/Dashboard";
 import VideoManage from "./components/Pages/VideoManage";
 import AuthLayout from './components/AuthLayout'
+import Playlists from "./components/Pages/Playlists/Playlists";
 
 function App() {
 
@@ -32,16 +33,14 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/user/change-password" element={<AuthLayout><ChangePassword /></AuthLayout> } />
-        <Route path="/profile/:username" element={<AuthLayout><Profile /></AuthLayout> } />
-
-        <Route path="/videos" element={<AuthLayout><AllVideos query={query} /></AuthLayout>} />
-        <Route path="/video/:videoId" element={<AuthLayout><Video/></AuthLayout>} />
-        <Route path="/user-dashboard" element={<Dashboard/>}/>
-
-        <Route path="/newvideo" element={<AuthLayout><UploadVideo/></AuthLayout>}/>
-        <Route path='/video-manage/:videoId' element={<AuthLayout><VideoManage/></AuthLayout>}/>
-        
+        <Route path="/user/change-password" element={<AuthLayout> <ChangePassword /> </AuthLayout> } />
+        <Route path="/profile/:username" element={<AuthLayout> <Profile /> </AuthLayout> } />
+        <Route path="/videos" element={<AuthLayout> <AllVideos query={query} /> </AuthLayout>} />
+        <Route path="/video/:videoId" element={<AuthLayout> <Video/> </AuthLayout>} />
+        <Route path="/user-dashboard" element={<AuthLayout> <Dashboard/> </AuthLayout>}/>
+        <Route path="/newvideo" element={<AuthLayout> <UploadVideo/> </AuthLayout>}/>
+        <Route path='/video-manage/:videoId' element={<AuthLayout> <VideoManage/> </AuthLayout>}/>
+        <Route path="/user/playlists" element={<AuthLayout> <Playlists/> </AuthLayout>}/>
       </Routes>
       </main>
       <Footer/>
