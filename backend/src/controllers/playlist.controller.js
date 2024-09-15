@@ -35,7 +35,7 @@ const getUserPlaylist = asyncHandler(async(req, res)=>{
         throw new ApiError(404, "Please provide user!!")
     }
 
-    const playlist_list = await Playlist.find({owner: new mongoose.Types.ObjectId(userId)})
+    const playlist_list = await Playlist.find({owner: new mongoose.Types.ObjectId(userId)});
 
     if(!playlist_list){
         return res
@@ -52,25 +52,30 @@ const getUserPlaylist = asyncHandler(async(req, res)=>{
     }
 })
 
-const getPlaylistById = asyncHandler(async(req, res)=>{
-    const {playlistId} = req.params
+const getPlaylistById = asyncHandler(async (req, res) => {
+    const { playlistId } = req.params;
 
-    if(!playlistId){
-        throw new ApiError(404, "Please provide playlist")
+    if (!playlistId) {
+        throw new ApiError(400, "Playlist ID is required");
     }
 
-    const playlist = await Playlist.findById(playlistId)
+    const playlist = await Playlist.findById(playlistId).populate({
+        path: 'video', 
+        select: 'title thumbnail description owner duration', 
+        populate: {
+            path: 'owner', 
+            select: 'username avatar' 
+        }
+    });
 
-    if(!playlist){
-        throw new ApiError(404, "No such playlist found")
+    if (!playlist) {
+        throw new ApiError(404, "No such playlist found");
     }
-    
-    return res
-    .status(200)
-    .json(
-        new ApiResponse(200, playlist, "successfully playlist found")
-    )
-})
+
+    return res.status(200).json(new ApiResponse(200, playlist, "Playlist found successfully"));
+});
+
+
 
 const addVideoToPlaylist = asyncHandler(async(req, res)=>{
     const {playlistId, videoId} = req.params
