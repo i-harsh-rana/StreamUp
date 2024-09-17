@@ -82,24 +82,33 @@ function Playlists() {
         }
     }
 
-    const createPlaylist = async(data)=>{
+    const createPlaylist = async (data) => {
         setCreateLoading(true);
         try {
             const formData = qs.stringify({
                 name: data.name,
                 description: data.description
-            })
+            });
 
-            const response = axios.post('/api/v1/playlist/', formData, {
-                headers:{
+            const response = await axios.post('/api/v1/playlist/', formData, {
+                headers: {
                     "Content-Type": 'application/x-www-form-urlencoded',
                 },
                 withCredentials: true
-            })
+            });
+
+            if (response.status === 200) {
+                fetchPlaylistsData();
+                setCreateBox(false);
+                reset(); 
+            }
         } catch (error) {
-            
+            console.error("Error creating playlist:", error);
+            setError(error.response?.data?.message || error.message || 'An error occurred while creating the playlist');
+        } finally {
+            setCreateLoading(false);
         }
-    }
+    };
 
     if (loading) {
         return <div className="text-white">Loading...</div>;
