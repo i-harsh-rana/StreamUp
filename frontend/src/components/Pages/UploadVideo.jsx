@@ -51,12 +51,12 @@ function UploadVideo() {
     return (
         <div className='text-white w-full h-full grid place-content-center '>
             
-            <div className='bg-gray-box rounded-3xl w-[50rem] m-20 p-12 border-2 border-gray-400/10 shadow-inner h-auto overflow-hidden relative'>
-            {loading && <div className='w-full h-full absolute bg-black/20 top-0 left-0 grid '><Uploading/></div>}
-            {finalAnimation && <div className='w-full h-full absolute bg-black/40 top-0 left-0 grid '><UploadDone/></div>}
-                <h1 className='text-3xl mb-10'>Publish Video</h1>
+            <div className='bg-gray-box rounded-3xl max-w-md md:max-w-[50rem] md:p-12 md:m-20 m-4 my-12 p-8 pt-12 border-2 border-gray-400/10 shadow-inner h-auto overflow-hidden relative'>
+            {loading && <div className='w-full h-full absolute bg-black/20 top-0 left-0 grid place-content-center'><Uploading/></div>}
+            {finalAnimation && <div className='w-full h-full absolute bg-black/40 top-0 left-0 grid place-content-center'><UploadDone/></div>}
+                <h1 className='text-2xl md:text-3xl mb-10'>Publish Video</h1>
                 
-                <form onSubmit={handleSubmit(uploadVideo)} className='grid grid-cols-2 gap-6'>
+                <form onSubmit={handleSubmit(uploadVideo)} className='grid grid-cols-1 md:grid-cols-2 gap-6'>
                     <div className='col-span-2 md:col-span-1'>
                         <Input
                             label='Title:'

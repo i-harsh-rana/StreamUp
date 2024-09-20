@@ -2,10 +2,16 @@ import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import timeCalculator from '../util/timeCalculator';
 import { useNavigate } from 'react-router-dom';
-import {motion} from 'framer-motion'
+import {motion, AnimatePresence} from 'framer-motion'
+import { useSelector } from 'react-redux';
 import secondsToHHMMSS from '../util/durationFormat';
+import addToPlaylist from '../../services/playlist';
+import CreatePlaylist from './Playlists/CreatePlaylist'
+import qs from 'qs'
+import ShowPlaylists from './Playlists/ShowPlaylists' 
 
 const AllVideos = ({ query }) => {
+  const user = useSelector((state)=>state.auth.userData);
   const [videos, setVideos] = useState([]);
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(12);
@@ -13,7 +19,13 @@ const AllVideos = ({ query }) => {
   const [error, setError] = useState(null);
   const [sortOption, setSortOption] = useState('createdAt_desc');
   const navigate = useNavigate();
+  const [videoMenu, setVideoMenu] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
+  const [addPlaylistBox, setAddPlaylistBox] = useState(false);
+  const [userPlaylistData, setPlaylistData] = useState([]);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [createPlaylistBox, setCreatePLaylistBox] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
 
   const isUsernameQuery = (query) => query.startsWith('@');
 
@@ -45,9 +57,6 @@ const AllVideos = ({ query }) => {
         params: searchParams,
         withCredentials: true,
       });
-
-      console.log('Response data:', response.data); 
-
       setVideos(response.data.data.docs || []);
       setTotalPages(response.data.data.totalPages || 1);
     } catch (err) {
@@ -69,6 +78,65 @@ const AllVideos = ({ query }) => {
   const handleNextPage = () => {
     setPage((prevPage) => Math.min(prevPage + 1, totalPages));
   };
+
+  const toggleVideoMenu = (videoId) => {
+      setVideoMenu((prevState) => ({
+          ...prevState,
+          [videoId]: !prevState[videoId],
+      }));
+  };
+
+  const getUserPlaylist = useCallback(async(userId)=>{
+    try {
+      const response = await axios.get(`/api/v1/playlist/user/${userId}`, {withCredentials: true});
+      if(response.status === 200){
+        setPlaylistData(response.data.data || [])
+        setVideoMenu(false);
+      }
+    } catch (error) {
+      console.error("Error while fetching playlist data", error);
+    }
+  })
+
+  const addVideoToPlaylist = async(playlistId, videoId)=>{
+    try {
+      const response = await addToPlaylist(playlistId, videoId);
+      if(response === 'ok'){
+        setSelectedVideo(null);
+        setAddPlaylistBox(false);
+      }
+    } catch (error) {
+      console.error("Error while adding video to playlist:", error);
+      
+    }
+  }
+
+  const createPlaylist = async (data) => {
+    setCreateLoading(true);
+    try {
+        const formData = qs.stringify({
+            name: data.name,
+            description: data.description
+        });
+
+        const response = await axios.post('/api/v1/playlist/', formData, {
+            headers: {
+                "Content-Type": 'application/x-www-form-urlencoded',
+            },
+            withCredentials: true
+        });
+
+        if (response.status === 200) {
+            getUserPlaylist(user._id); 
+            setCreatePLaylistBox(false);
+        }
+    } catch (error) {
+        console.error("Error creating playlist:", error);
+        setError(error.response?.data?.message || error.message || 'An error occurred while creating the playlist');
+    } finally {
+        setCreateLoading(false);
+    }
+};
 
   if (loading) return <div className="text-center py-4">Loading...</div>;
   if (error) return <div className="text-center py-4">{error}</div>;
@@ -100,10 +168,37 @@ const AllVideos = ({ query }) => {
             transition={{ duration: 0.2 }}
             key={video._id} 
             onClick={()=>navigate(`/video/${video._id}`)} 
-            className="bg-gray-box relative border-2 cursor-pointer border-gray-400/10 text-white rounded-lg shadow-md overflow-hidden">
+            className="bg-gray-box relative border-2 cursor-pointer border-gray-400/10 text-white rounded-lg shadow-md">
               <img loading='lazy' src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover" />
               <div className="p-4">
-                <h3 className="text-lg font-semibold mb-2">{video.title}</h3>
+                <div className='flex justify-between'>
+                  <h3 className="text-lg font-semibold mb-2 truncate">{video.title}</h3>
+                  <i onClick={(e)=>{e.stopPropagation(); toggleVideoMenu(video._id)}} className="fa-solid fa-ellipsis-vertical p-2 text-lg opacity-75 hover:opacity-100 active:opacity-75"></i>
+                  <motion.div 
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ 
+                          height: videoMenu[video._id] ? 'auto' : 0, 
+                          opacity: videoMenu[video._id] ? 1 : 0 
+                      }}
+                      transition={{ duration: 0.2, ease: 'easeInOut' }}
+                      className={`absolute z-50 bg-black w-[8.5rem] border-2 border-gray-400/10 rounded-xl right-[2rem] top-[15.5rem]`}
+                  >
+                      <ul>
+                          <motion.li 
+                          initial={{scale: 1}}
+                          whileHover={{scale: 1.05}}
+                          onClick={(e)=>{
+                            e.stopPropagation(); 
+                            getUserPlaylist(user._id); 
+                            setAddPlaylistBox(true); 
+                            setSelectedVideo(video._id)
+                          }} 
+                            className='p-3 cursor-pointer text-sm text-white/90 hover:text-white'>
+                               Add To Playlist
+                      </motion.li>
+                      </ul>
+                   </motion.div>
+                </div>
                 <p className="text-xs mb-1 text-white/70">{video.owner?.fullName || 'Unknown'}</p>
                 <p className="text-xs mb-1 text-white/70">{video.views}&nbsp;Views &nbsp;&nbsp;&nbsp;{timeCalculator(video.createdAt)}</p>
                 <p className='absolute right-[0.5rem] top-[10rem] bg-black/50 rounded-md px-2 text-sm'>{secondsToHHMMSS(video.duration)}</p>
@@ -129,6 +224,22 @@ const AllVideos = ({ query }) => {
           disabled={page === totalPages}
         ></i>
       </div>
+
+      <ShowPlaylists
+        isOpen={addPlaylistBox}
+        onClose={() => setAddPlaylistBox(false)}
+        userPlaylistData={userPlaylistData}
+        onAddToPlaylist={addVideoToPlaylist}
+        onCreatePlaylist={() => setCreatePLaylistBox(true)}
+        selectedVideo={selectedVideo}
+      />
+
+      <CreatePlaylist
+        isOpen={createPlaylistBox}
+        onClose={()=>setCreatePLaylistBox(false)}
+        isLoading={createLoading}
+        onSubmit={createPlaylist}
+      />
     </div>
   );
 };

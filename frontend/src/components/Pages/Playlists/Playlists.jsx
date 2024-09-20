@@ -4,9 +4,9 @@ import { useSelector } from 'react-redux';
 import { motion, AnimatePresence } from 'framer-motion';
 import {useNavigate} from 'react-router-dom';
 import secondsToHHMMSS from '../../util/durationFormat'
-import Input from '../../util/Input'
 import { useForm } from 'react-hook-form'
 import qs from 'qs'
+import CreatePlaylist from './CreatePlaylist';
 
 
 function Playlists() {
@@ -20,6 +20,7 @@ function Playlists() {
     const [createBox, setCreateBox] = useState(false);
     const {register, handleSubmit, formState: {errors}, reset} = useForm();
     const [createloading, setCreateLoading] = useState(false);
+    const [playlistMenu, setPlaylistMenu] = useState(false);
 
     const fetchPlaylistsData = useCallback(async () => {
         setLoading(true);
@@ -110,6 +111,13 @@ function Playlists() {
         }
     };
 
+    const toggleMenu = (playlistId) => {
+        setPlaylistMenu((prevState) => ({
+            ...prevState,
+            [playlistId]: !prevState[playlistId],
+        }));
+    };
+
     if (loading) {
         return <div className="text-white">Loading...</div>;
     }
@@ -150,73 +158,71 @@ function Playlists() {
                         >
                             <p>{list.name}</p>
                             <p className='text-sm opacity-55 mt-2'>{list.description}</p>
-                            <i onClick={()=>handlePlaylestdelete(list._id)} className="fa-solid fa-trash absolute right-7 top-[1.3rem] hover:opacity-100 opacity-75 p-3"></i>
-
-                            {selectedPlaylistId === list._id && videoList?.map((video) => (
-                                <motion.div
-                                key={video._id}
-                                className='overflow-hidden'
-                                    initial={{height: 0}}
-                                    animate={{
-                                        height: 'auto',
-                                        transition: {duration: 0.2, ease: 'easeInOut'}
-                                    }}>
-                                    <div className='mt-8 text-sm bg-gray-box border-2 border-gray-400/10 rounded-lg'>
-                                        <div onClick={(e)=>{e.stopPropagation(); navigate(`/video/${video._id}`)}} className='flex relative cursor-pointer'>
-                                            <img src={video.thumbnail} className='w-[10rem] h-[6rem] rounded-l-lg object-cover'/>
-                                            <div className='m-4'>
-                                                <p className='text-base'>{video.title}</p>
-                                                <div  className='flex mt-4'>
-                                                    <img src={video.owner.avatar} className='h-5 w-5 rounded-full mr-2' />
-                                                    <p>{video.owner.username}</p>
-                                                    <p className='bg-black/50 rounded-md px-2 text-sm absolute left-20 bottom-3'>{secondsToHHMMSS(video?.duration)}</p>
-                                                    <i onClick={(e)=>{ e.stopPropagation(); handleVideoRemove(list._id, video._id); }} className="fa-solid fa-trash absolute right-9 top-[1.8rem] hover:opacity-100 opacity-75 p-3"></i>
+                            <i onClick={()=>toggleMenu(list._id)} className="fa-solid fa-ellipsis-vertical absolute right-7 top-[1.1rem] hover:opacity-100 opacity-75 p-3 text-xl"></i>
+                            <motion.div 
+                                initial={{ height: 0, opacity: 0 }}
+                                animate={{ 
+                                    height: playlistMenu[list._id] ? 'auto' : 0, 
+                                    opacity: playlistMenu[list._id] ? 1 : 0 
+                                }}
+                                transition={{ duration: 0.2, ease: 'easeInOut' }}
+                                className={`absolute z-50 bg-black w-[9rem] border-2 border-gray-400/10 rounded-xl -right-[7rem] top-[4rem]`}
+                            >
+                                <ul>
+                                    <motion.li className='p-3 cursor-pointer text-sm'>
+                                        Update Playlist
+                                    </motion.li>
+                                    <motion.li onClick={()=>handlePlaylestdelete(list._id)} className='p-3 cursor-pointer text-sm'>
+                                        Delete
+                                    </motion.li>
+                                </ul>
+                            </motion.div>
+                            {selectedPlaylistId === list._id && (
+                                videoList?.length > 0 ? (
+                                    videoList.map((video) => (
+                                        <motion.div
+                                            key={video._id}
+                                            className='overflow-hidden'
+                                            initial={{ height: 0 }}
+                                            animate={{
+                                                height: 'auto',
+                                                transition: { duration: 0.2, ease: 'easeInOut' }
+                                            }}
+                                        >
+                                            <div className='mt-8 text-sm bg-gray-box border-2 border-gray-400/10 rounded-lg'>
+                                                <div onClick={(e) => { e.stopPropagation(); navigate(`/video/${video._id}`) }} className='flex relative cursor-pointer'>
+                                                    <img src={video.thumbnail} className='w-[10rem] h-[6rem] rounded-l-lg object-cover' />
+                                                    <div className='m-4'>
+                                                        <p className='text-base'>{video.title}</p>
+                                                        <div className='flex mt-4'>
+                                                            <img src={video.owner.avatar} className='h-5 w-5 rounded-full mr-2' />
+                                                            <p>{video.owner.username}</p>
+                                                            <p className='bg-black/50 rounded-md px-2 text-sm absolute left-20 bottom-3'>{secondsToHHMMSS(video?.duration)}</p>
+                                                            <i onClick={(e) => { e.stopPropagation(); handleVideoRemove(list._id, video._id); }} className="fa-solid fa-trash absolute right-9 top-[1.8rem] hover:opacity-100 opacity-75 p-3"></i>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                                
                                             </div>
-                                        </div>
-                                    </div>
-                                </motion.div>
-                                
-                            ))}
+                                        </motion.div>
+                                    ))
+                                ) : (
+                                    <div className='my-4 text-center opacity-25'>This playlist is empty.</div>
+                                )
+                            )}
                         </motion.div>
                     ))
                 ) : (
-                    <div>No playlists available</div>
+                    <div className='text-center my-10 opacity-55'>No playlists available</div>
                 )}
             </div>
 
-            <AnimatePresence>
-                {createBox && 
-                <motion.div
-                onClick={()=>setCreateBox(false)}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }} 
-                className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-20'>
-                    <motion.div
-                    className="bg-gray-box p-10 rounded-xl border-2 border-gray-400/10 w-[35rem]"
-                    initial={{ scale: 0.5, opacity: 0 }}
-                    animate={{ scale: 1, opacity: 1 }}
-                    exit={{ scale: 0.5, opacity: 0 }}
-                    transition={{ type: "spring", stiffness: 300, damping: 25 }}
-                    onClick={(e) => e.stopPropagation()}>
-                        <h1 className='text-2xl mb-7'>Create Playlist</h1>
-                        <form onSubmit={handleSubmit(createPlaylist)}>
-                            <Input
-                            label='Name'
-                            {...register('name', {required: 'Name of playlist is required'})}
-                            error={errors.name?.message}
-                            labelClassName="text-white"
-                            className='bg-background-all focus:bg-background-all'
-                            />
-                            <p className='mb-5'>Description</p>
-                            <textarea {...register('description', {required: 'Description is required'})} className='rounded-lg bg-background-all resize-none p-4' rows={4} cols={55} placeholder='Description here...' required></textarea>
-                            <button type='submit' disabled={createloading ? true : false} className='w-full bg-white rounded-full text-black p-2 font-normal mt-5'>{createloading?'Creating...' : 'Create'}</button>
-                        </form>
-                    </motion.div>
-                </motion.div> }
-            </AnimatePresence>
+            <CreatePlaylist
+                isOpen={createBox}
+                onClose={() => setCreateBox(false)}
+                onSubmit={createPlaylist}
+                isLoading={loading}
+            />
+            
         </div>
     );
 }

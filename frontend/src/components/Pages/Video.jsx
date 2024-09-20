@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import VideoPlayer from '../util/videoPlayer/VideoPlayer';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
@@ -9,6 +9,9 @@ import timeCalculator from '../util/timeCalculator'
 import { useSelector } from 'react-redux';
 import { fetchVideoLike } from '../../services/likes';
 import { Link } from 'react-router-dom';
+import ShowPlaylists from './Playlists/ShowPlaylists';
+import addToPlaylist from '../../services/playlist';
+import CreatePlaylist from './Playlists/CreatePlaylist';
 
 function Video() {
   const curUser = useSelector((state)=>state.auth.userData);
@@ -20,6 +23,10 @@ function Video() {
   const [descriptionOverFlow, setDescriptionOverFlow] = useState(false);
   const [subscribed, setSubscribed] = useState();
   const [like, setLike] = useState();
+  const [showPlaylists, setShowPlaylists] = useState(false);
+  const [createPlaylistBox, setCreatePlaylistBox] = useState(false);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [userPlaylistData, setUserPlaylistData] = useState(null);
 
   useEffect(() => {
     let isMounted = true;
@@ -99,6 +106,58 @@ function Video() {
       }
   }
 
+  const getUserPlaylist = useCallback(async(userId)=>{
+    try {
+      const response = await axios.get(`/api/v1/playlist/user/${userId}`, {withCredentials: true});
+      if(response.status === 200){
+        setUserPlaylistData(response.data.data || [])
+        setVideoMenu(false);
+      }
+    } catch (error) {
+      console.error("Error while fetching playlist data", error);
+    }
+  })
+
+  const addVideoToPlaylist = async(playlistId, videoId)=>{
+    try {
+      const response = await addToPlaylist(playlistId, videoId);
+      if(response === 'ok'){
+        setSelectedVideo(null);
+        setAddPlaylistBox(false);
+      }
+    } catch (error) {
+      console.error("Error while adding video to playlist:", error);
+      
+    }
+  }
+
+  const createPlaylist = async (data) => {
+    setCreateLoading(true);
+    try {
+        const formData = qs.stringify({
+            name: data.name,
+            description: data.description
+        });
+
+        const response = await axios.post('/api/v1/playlist/', formData, {
+            headers: {
+                "Content-Type": 'application/x-www-form-urlencoded',
+            },
+            withCredentials: true
+        });
+
+        if (response.status === 200) {
+            getUserPlaylist(user._id); 
+            setCreatePLaylistBox(false);
+        }
+    } catch (error) {
+        console.error("Error creating playlist:", error);
+        setError(error.response?.data?.message || error.message || 'An error occurred while creating the playlist');
+    } finally {
+        setCreateLoading(false);
+    }
+};
+
 
   if (loading) {
     return (
@@ -145,11 +204,31 @@ function Video() {
 
             <button onClick={()=>handleSubscribeToggle(videoData.owner._id)} className={` col-span-7 p-3 px-6  w-fit rounded-full ${subscribed ? 'bg-hopbush-main text-white active:bg-hopbush-600' : 'bg-white text-black active:bg-slate-100'}`}>{subscribed ? 'Subscribed' : 'Subscribe'}</button>
             <div className='col-span-2 flex justify-center items-center'>
-              <i onClick={()=>hangleVideoLikeToggle(videoId)} className={`fa-heart text-2xl mr-3 ${like ? 'text-red-700 fa-solid' : 'fa-regular'}`}></i>
+              <i onClick={()=>hangleVideoLikeToggle(videoId)} className={`fa-heart text-2xl cursor-pointer mr-3 ${like ? 'text-red-700 fa-solid' : 'fa-regular'}`}></i>
                 <p className='text-sm opacity-85'>{videoData.likeCount}</p>
+                <i onClick={()=>{
+                  setShowPlaylists(true);
+                  getUserPlaylist(curUser._id)
+                  }} 
+                  className="fa-regular fa-bookmark ml-10 text-xl cursor-pointer"></i>
             </div>
           </div>
+        
+          <ShowPlaylists
+            isOpen={showPlaylists}
+            onClose={() => setShowPlaylists(false)}
+            userPlaylistData={userPlaylistData}
+            onAddToPlaylist={addVideoToPlaylist}
+            onCreatePlaylist={() => setCreatePlaylistBox(true)}
+            selectedVideo={videoData._id}
+          />
 
+          <CreatePlaylist
+            isOpen={createPlaylistBox}
+            onClose={()=>setCreatePlaylistBox(false)}
+            isLoading={createLoading}
+            onSubmit={createPlaylist}
+          />
           
 
           <div className={`bg-white/10 rounded-xl p-5 relative ${descriptionOverFlow ? 'h-full' : 'h-[5.5rem]'} `}>
