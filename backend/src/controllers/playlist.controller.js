@@ -96,7 +96,11 @@ const addVideoToPlaylist = asyncHandler(async(req, res)=>{
     }
 
     if(playlist.video.includes(videoObjectId)){
-        throw new ApiError(404, "Video is already in this playlist")
+        return res
+        .status(200)
+        .json(
+            new ApiResponse(200, playlist, "Video is already in playlist")
+        )
     }
 
     playlist.video.push(videoObjectId)
