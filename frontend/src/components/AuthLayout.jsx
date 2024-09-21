@@ -1,21 +1,27 @@
-import React, {useEffect, useState} from 'react'
-import {useSelector} from 'react-redux'
-import {useNavigate} from 'react-router-dom'
+import React, { useEffect, useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import { logout } from '../../store/authSlice';
 
-export default function Protected({children, authentication = true}) {
-
-    const navigate = useNavigate()
-    const [loader, setLoader] = useState(true)
-    const authStatus = useSelector(state => state.auth.status)
+export default function Protected({ children, authentication = true }) {
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [loader, setLoader] = useState(true);
+    const authStatus = useSelector((state) => state.auth.status);
 
     useEffect(() => {
-        if(authentication && authStatus !== authentication){
-            navigate("/login")
-        } else if(!authentication && authStatus !== authentication){
-            navigate("/")
-        }
-        setLoader(false)
-    }, [authStatus, navigate, authentication])
+        const checkAuthStatus = () => {
+            if (authentication && !authStatus) {
+                dispatch(logout());
+                navigate("/login");
+            } else if (!authentication && authStatus) {
+                navigate("/");
+            }
+            setLoader(false);
+        };
 
-  return loader ? <h1>Loading...</h1> : <>{children}</>
+        checkAuthStatus();
+    }, [authStatus, navigate, authentication, dispatch]);
+
+    return loader ? <h1>Loading...</h1> : <>{children}</>;
 }

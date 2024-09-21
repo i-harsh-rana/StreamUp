@@ -169,7 +169,7 @@ const AllVideos = ({ query }) => {
             key={video._id} 
             onClick={()=>navigate(`/video/${video._id}`)} 
             className="bg-gray-box relative border-2 cursor-pointer border-gray-400/10 text-white rounded-lg shadow-md">
-              <img loading='lazy' src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover" />
+              <img loading='lazy' src={video.thumbnail} alt={video.title} className="w-full h-48 object-cover rounded-t-lg" />
               <div className="p-4">
                 <div className='flex justify-between'>
                   <h3 className="text-lg font-semibold mb-2 truncate">{video.title}</h3>
