@@ -10,7 +10,8 @@ import {
     updateUserCoverImage, 
     getUserProfile, 
     getWatchHistory,
-    clearWatchHistory} from '../controllers/user.controller.js'
+    clearWatchHistory,
+    refreshAccessToken} from '../controllers/user.controller.js'
 import { upload } from "../middlewares/multer.middleware.js";
 import { verifyJWT } from "../middlewares/auth.middleware.js";
 
@@ -48,5 +49,7 @@ router.route("/c/:username").get(verifyJWT,  getUserProfile)
 router.route("/watch-history").get(verifyJWT,  getWatchHistory)
 
 router.route('/clearhistory').get(verifyJWT, clearWatchHistory)
+
+router.route('/refresh-token').post(refreshAccessToken)
 
 export default router;

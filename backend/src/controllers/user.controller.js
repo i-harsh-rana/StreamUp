@@ -167,48 +167,54 @@ const logoutUser = asyncHandler(async(req, res)=>{
     .json(new ApiResponse(200, {}, "User Logged Out"))
 });
 
-const refreshAccessToken = asyncHandler(async(req, res)=>{
-    const incomingRefreshToken = req.cookie.refreshToken
+const refreshAccessToken = asyncHandler(async (req, res) => {
+    const incomingRefreshToken = req.cookies.refreshToken;
 
     if (!incomingRefreshToken) {
-        throw new ApiError(401, "unauthorized request")
+        throw new ApiError(401, "Unauthorized request - No refresh token");
     }
 
     try {
-        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET)
-    
-        const user = await User.findById(decodedToken._id)
-    
-        if(!user){
-            throw new ApiError(401, "Invalid refresh token")
+        const decodedToken = jwt.verify(incomingRefreshToken, process.env.REFRESH_TOKEN_SECRET);
+
+        const user = await User.findById(decodedToken._id);
+
+        if (!user) {
+            throw new ApiError(401, "Invalid refresh token");
         }
-    
-        if(incomingRefreshToken !== user.refreshToken){
-            throw new ApiError(401, "Refresh token is expoired")
+
+        if (incomingRefreshToken !== user.refreshToken) {
+            throw new ApiError(401, "Refresh token expired or doesn't match");
         }
-    
-        const {newrefreshToken, accessToken} = await generateAccessAndRefreshToken(user._id)
-    
+
+        const { refreshToken: newRefreshToken, accessToken } = await generateAccessAndRefreshToken(user._id);
+
         const options = {
             httpOnly: true,
-            secure: true
-        }
-    
+            secure: true, 
+            sameSite: 'None'
+        };
+
         return res
-        .status(200)
-        .cookie("accessToken", accessToken, options)
-        .cookie("refreshToken", newrefreshToken, options)
-        .json(
-            new ApiResponse(
-                200, 
-                {accessToken, refreshToken: newrefreshToken},
-                "Access token refreshed"
-            )
-        )
+            .status(200)
+            .cookie("accessToken", accessToken, options)
+            .cookie("refreshToken", newRefreshToken, options)
+            .json(
+                new ApiResponse(
+                    200,
+                    { accessToken, refreshToken: newRefreshToken },
+                    "Access token refreshed successfully"
+                )
+            );
     } catch (error) {
-        throw new ApiError(401, error?.message || "invalid refresh token")
+        return res
+            .status(401)
+            .clearCookie("accessToken")
+            .clearCookie("refreshToken")
+            .json(new ApiResponse(401, {}, "Session expired, please log in again"));
     }
-})
+});
+
 
 const changePassword = asyncHandler(async(req, res)=>{
     const { oldPassword, newPassword } = req.body;
