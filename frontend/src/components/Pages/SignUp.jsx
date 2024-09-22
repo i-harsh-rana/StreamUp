@@ -10,9 +10,12 @@ import Signup from '../../assets/Signup.json'
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { login } from '../../store/authSlice';
+import ErrorDisplay from '../util/ErrorDisplay';
+
 
 function SignUp() {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const {register, handleSubmit, formState: {errors}, reset} = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
@@ -20,7 +23,7 @@ function SignUp() {
 
     const onSubmit = async (data)=>{
         setLoading(true);
-
+        setError(null);
         const formData = new FormData();
         formData.append('fullName', data.fullName);
         formData.append('username', data.username);
@@ -46,6 +49,7 @@ function SignUp() {
 
         } catch (error) {
             console.error('Signup failed', error.response.data);
+            setError(error.response?.data?.message || error.message || 'Unable to Register, please try again');
         }finally{
             setLoading(false);
         }
@@ -116,6 +120,7 @@ function SignUp() {
                 style={{ width: 400, height: 400 }}
              />
             </motion.div>
+            {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
         </div>
     )
 }

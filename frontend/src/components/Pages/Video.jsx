@@ -12,6 +12,7 @@ import { Link } from 'react-router-dom';
 import ShowPlaylists from './Playlists/ShowPlaylists';
 import addToPlaylist from '../../services/playlist';
 import CreatePlaylist from './Playlists/CreatePlaylist';
+import ErrorDisplay from '../util/ErrorDisplay';
 
 function Video() {
   const curUser = useSelector((state)=>state.auth.userData);
@@ -53,7 +54,7 @@ function Video() {
         }
       } catch (error) {
         if (isMounted) {
-          setError('Error fetching video data');
+          setError(error.response?.data?.message || error.message || 'Error fetching video data');
           setLoading(false);
         }
       }
@@ -85,16 +86,19 @@ function Video() {
   }, [videoData, subscribed]);
 
   const handleSubscribeToggle = async(channelId)=>{
+    setError(null);
     try {
       await toggleSubscribe(channelId);
       setSubscribed(!subscribed);
     } catch (error) {
+      setError(error.response?.data?.message || error.message || 'An unexpected error while toggle subscribe');
       console.error("Error while toggling subscribe", error);
       
     }
   }
 
   const hangleVideoLikeToggle = async(videoId)=>{
+    setError(null);
       try {
         const newLikeCount = await fetchVideoLike(videoId);
         const updatedVideoData = {...videoData};
@@ -103,10 +107,12 @@ function Video() {
         setLike(!like);
       } catch (error) {
         console.error("Error while toggling videoLike", error);
+        setError(error.response?.data?.message || error.message || 'Unable to Like, please try agian!');
       }
   }
 
   const getUserPlaylist = useCallback(async(userId)=>{
+    setError(null);
     try {
       const response = await axios.get(`/api/v1/playlist/user/${userId}`, {withCredentials: true});
       if(response.status === 200){
@@ -115,10 +121,12 @@ function Video() {
       }
     } catch (error) {
       console.error("Error while fetching playlist data", error);
+      setError(error.response?.data?.message || error.message || "Unable to get user's playlist, please try again");
     }
   })
 
   const addVideoToPlaylist = async(playlistId, videoId)=>{
+    setError(null);
     try {
       const response = await addToPlaylist(playlistId, videoId);
       if(response === 'ok'){
@@ -127,12 +135,13 @@ function Video() {
       }
     } catch (error) {
       console.error("Error while adding video to playlist:", error);
-      
+      setError(error.response?.data?.message || error.message || "Uable to add video to playlist, please try again!");
     }
   }
 
   const createPlaylist = async (data) => {
     setCreateLoading(true);
+    setError(null);
     try {
         const formData = qs.stringify({
             name: data.name,
@@ -148,7 +157,7 @@ function Video() {
 
         if (response.status === 200) {
             getUserPlaylist(user._id); 
-            setCreatePLaylistBox(false);
+            setCreatePlaylistBox(false);
         }
     } catch (error) {
         console.error("Error creating playlist:", error);
@@ -245,6 +254,7 @@ function Video() {
           </div>
         </div>
       </div>
+      {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   );
 }

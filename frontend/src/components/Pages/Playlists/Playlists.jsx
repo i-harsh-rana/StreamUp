@@ -7,6 +7,7 @@ import secondsToHHMMSS from '../../util/durationFormat'
 import { useForm } from 'react-hook-form'
 import qs from 'qs'
 import CreatePlaylist from './CreatePlaylist';
+import ErrorDisplay from '../../util/ErrorDisplay';
 
 
 function Playlists() {
@@ -32,7 +33,7 @@ function Playlists() {
             setPlaylistData(response.data.data || []);
         } catch (error) {
             console.error("Error while fetching playlist data", error);
-            setError(error);
+            setError(error.response?.data?.message || error.message || 'Unable to fetch playlists data, please try again!');
         } finally {
             setLoading(false);
         }
@@ -54,12 +55,13 @@ function Playlists() {
             }
         } catch (error) {
             console.error("Error while fetching video list", error);
-            setError(error.response?.data?.message || error.message || 'An error occurred');
+            setError(error.response?.data?.message || error.message || 'Unable to fetch vidoes of playlist, please try again!');
             setSelectedPlaylistId(null); 
         }
     };
 
     const handleVideoRemove = async (playlistId, videoId) => {
+        setError(null);
         try {
             const response = await axios.patch(`/api/v1/playlist/remove/${playlistId}/${videoId}`, { withCredentials: true });
             if (response.status === 200) {
@@ -67,10 +69,12 @@ function Playlists() {
             }
         } catch (error) {
             console.error("Error while removing video", error);
+            setError(error.response?.data?.message || error.message || 'Unable to remove video from playlist, please try again!');
         }
     };
 
     const handlePlaylestdelete = async(playlistId)=>{
+        setError(null);
         try {
             const response = await axios.delete(`/api/v1/playlist/delete/${playlistId}`, {
                 withCredentials: true
@@ -79,12 +83,13 @@ function Playlists() {
                 setPlaylistData(playlistData.filter((list)=> list._id != playlistId));
             }
         } catch (error) {
-            
+            setError(error.response?.data?.message || error.message || 'Unable to delete playlist, please try again!');
         }
     }
 
     const createPlaylist = async (data) => {
         setCreateLoading(true);
+        setError(null);
         try {
             const formData = qs.stringify({
                 name: data.name,
@@ -105,7 +110,7 @@ function Playlists() {
             }
         } catch (error) {
             console.error("Error creating playlist:", error);
-            setError(error.response?.data?.message || error.message || 'An error occurred while creating the playlist');
+            setError(error.response?.data?.message || error.message || 'Unable to create new playlist, please try again!');
         } finally {
             setCreateLoading(false);
         }
@@ -222,7 +227,7 @@ function Playlists() {
                 onSubmit={createPlaylist}
                 isLoading={loading}
             />
-            
+            {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
         </div>
     );
 }

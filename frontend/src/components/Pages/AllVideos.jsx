@@ -8,7 +8,8 @@ import secondsToHHMMSS from '../util/durationFormat';
 import addToPlaylist from '../../services/playlist';
 import CreatePlaylist from './Playlists/CreatePlaylist'
 import qs from 'qs'
-import ShowPlaylists from './Playlists/ShowPlaylists' 
+import ShowPlaylists from './Playlists/ShowPlaylists'
+import ErrorDisplay from '../util/ErrorDisplay';
 
 const AllVideos = ({ query }) => {
   const user = useSelector((state)=>state.auth.userData);
@@ -59,9 +60,9 @@ const AllVideos = ({ query }) => {
       });
       setVideos(response.data.data.docs || []);
       setTotalPages(response.data.data.totalPages || 1);
-    } catch (err) {
+    } catch (error) {
       console.error('Error fetching videos:', err); 
-      setError('Error fetching videos');
+      setError(error.response?.data?.message || error.message || 'Error fetching videos');
     } finally {
       setLoading(false);
     }
@@ -87,6 +88,7 @@ const AllVideos = ({ query }) => {
   };
 
   const getUserPlaylist = useCallback(async(userId)=>{
+    setError(null);
     try {
       const response = await axios.get(`/api/v1/playlist/user/${userId}`, {withCredentials: true});
       if(response.status === 200){
@@ -95,10 +97,12 @@ const AllVideos = ({ query }) => {
       }
     } catch (error) {
       console.error("Error while fetching playlist data", error);
+      setError(error.response?.data?.message || error.message || "Unable to get user's playlist");
     }
   })
 
   const addVideoToPlaylist = async(playlistId, videoId)=>{
+    setError(null);
     try {
       const response = await addToPlaylist(playlistId, videoId);
       if(response === 'ok'){
@@ -107,11 +111,12 @@ const AllVideos = ({ query }) => {
       }
     } catch (error) {
       console.error("Error while adding video to playlist:", error);
-      
+      setError(error.response?.data?.message || error.message || 'Unable to add video to playlist, please try again');
     }
   }
 
   const createPlaylist = async (data) => {
+    setError(null);
     setCreateLoading(true);
     try {
         const formData = qs.stringify({
@@ -240,6 +245,7 @@ const AllVideos = ({ query }) => {
         isLoading={createLoading}
         onSubmit={createPlaylist}
       />
+       {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   );
 };

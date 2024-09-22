@@ -11,17 +11,19 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useDispatch } from 'react-redux'
 import { login } from '../../store/authSlice'
 import qs from 'qs'
+import ErrorDisplay from '../util/ErrorDisplay'
 
 
 function Login() {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState(null);
     const {register, handleSubmit, formState: {errors}, reset} = useForm()
     const dispatch = useDispatch()
     const navigate = useNavigate()
 
     const onSubmit = async (data) => {
         setLoading(true);
-    
+        setError(null);
         // Prepare data in x-www-form-urlencoded format
         const formData = qs.stringify({
             username: data.usernameOrEmail.includes('@') ? undefined : data.usernameOrEmail,
@@ -46,10 +48,13 @@ function Login() {
             }
         } catch (error) {
             console.error('Login failed:', error.response ? error.response.data : error.message);
+            setError(error.response?.data?.message || error.message || 'An unexpected error occurred');
         } finally {
             setLoading(false);
         }
     }
+
+    
   return (
     <div className='relative h-[56rem] w-full overflow-hidden'>
         <div className='absolute right-0 z-10 w-1/2 h-full grid place-content-center'>
@@ -88,6 +93,8 @@ function Login() {
             style={{ width: 500, height: 500 }}
         />
         </motion.div>
+
+        {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   )
 }

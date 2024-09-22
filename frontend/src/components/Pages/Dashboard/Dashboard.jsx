@@ -15,6 +15,7 @@ import Button from '../../util/Button'
 import qs from 'qs';
 import { useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
+import ErrorDisplay from '../../util/ErrorDisplay'
 
 function Dashboard() {
     const [userData, setUserData] = useState(null);
@@ -43,6 +44,7 @@ function Dashboard() {
 
       const fetchDashboardData = useCallback(async () => {
           setLoading(true)
+          setError(null);
           try {
               const response = await axios.get('/api/v1/dashboard/stats', {
                   withCredentials: true
@@ -56,7 +58,7 @@ function Dashboard() {
               }
           } catch (error) {
               console.error("Error while fetching dashboard data", error)
-              setError(error.message)
+              setError(error.response?.data?.message || error.message || "Unable to fetch Dashboard Data, please try again!")
           } finally {
               setLoading(false)
           }
@@ -67,6 +69,7 @@ function Dashboard() {
       }, [fetchDashboardData])
 
     const handleClearHistory = async()=>{
+      setError(null);
       try {
         setLoading(true)
         const response = await axios.get(`api/v1/user/clearhistory`, {
@@ -77,14 +80,14 @@ function Dashboard() {
         }
       } catch (error) {
         console.error("Error while cleaing history", error);
-        setError(error.message);
+        setError(error.response?.data?.message || error.message || "Unable to clear history, please try agian!");
       }finally{
         setLoading(false)
       }
     }
 
     const updateDetails = async (data) => {
-      
+      setError(null);
       if (!data.fullName && !data.email) {
           return alert('At least one field (Full Name or Email) is required to update!');
       }
@@ -112,10 +115,12 @@ function Dashboard() {
       } catch (error) {
           console.error('Update Failed:', error);
           console.error('Error response:', error.response);
+          setError(error.response?.data?.message || error.message || "Unable to update user's profile, please try again!")
       }
     }
 
     const updateAvatar = async(data)=>{
+      setError(null);
       const formData = new FormData()
       formData.append('avatar', data.avatar[0])
       try {
@@ -134,10 +139,12 @@ function Dashboard() {
         }
       } catch (error) {
         console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
+        setError(error.response?.data?.message || error.message || "Unable to update user's avatar, please try again!")
       }
     }
 
     const coverImageUpdate = async(data)=>{
+      setError(null);
       const formData = new FormData()
       formData.append('coverImage', data.coverImage[0])
       try {
@@ -156,6 +163,7 @@ function Dashboard() {
         }
       } catch (error) {
         console.error('Update Avatar Fail:', error.response ? error.response.data : error.message);
+        setError(error.response?.data?.message || error.message || "Unable to update user's coverimage, please try again!")
       }
     }
 
@@ -463,7 +471,9 @@ function Dashboard() {
               </motion.div>
           )}
       </AnimatePresence>
-    
+
+      
+      {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   )
 }

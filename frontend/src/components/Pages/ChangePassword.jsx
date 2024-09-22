@@ -8,14 +8,17 @@ import Button from '../util/Button'
 import { useNavigate } from 'react-router-dom'
 import qs from 'qs'
 import axios from 'axios'
+import ErrorDisplay from '../util/ErrorDisplay'
 
 function ChangePassword() {
     const [loading, setLoading] = useState(false);
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
     const navigate = useNavigate();
+    const [error, setError] = useState(null);
 
     const changeIt = async (data) => {
         setLoading(true);
+        setError(null);
         const formData = qs.stringify({
             oldPassword: data.oldPassword,
             newPassword: data.newPassword
@@ -34,6 +37,7 @@ function ChangePassword() {
             }
         } catch (error) {
             console.error('Change Password failed:', error.response ? error.response.data : error.message);
+            setError(error.response?.data?.message || error.message || 'Unable to change password, please try again!');
         } finally {
             setLoading(false);
         }
@@ -74,6 +78,7 @@ function ChangePassword() {
 
                 {loading && <Loading />}
             </div>
+            {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
         </div>
     );
 }

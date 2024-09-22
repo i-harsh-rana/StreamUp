@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Logo from '../../assets/StreamUp.svg';
 import LogoutBtn from './LogoutBtn';
 import { Menu, Search, User, X } from 'lucide-react';
+import ErrorDisplay from '../util/ErrorDisplay';
 
 const Button = ({ children, onClick, className = '', variant = 'default' }) => {
   const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors duration-200';
@@ -32,6 +33,7 @@ function Header({ onSearch }) {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
   const searchRef = useRef(null);
+  const [error, setError] = useState(null);
 
   const avatar = userData?.avatar || '';
   const fullName = userData?.fullName || 'User';
@@ -203,6 +205,7 @@ function Header({ onSearch }) {
         </div>
 
       </div>
+      {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </header>
   );
 }

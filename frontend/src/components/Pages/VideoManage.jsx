@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import qs from 'qs';
+import ErrorDisplay from '../util/ErrorDisplay';
 
 function VideoManage() {
     const {videoId} = useParams();
@@ -22,6 +23,7 @@ function VideoManage() {
 
     const fetchVideoData = useCallback( async(videoId)=>{
         setLoading(true);
+        setError(null);
         try {
             const response = await axios.get(`/api/v1/video/${videoId}`, {
                 withCredentials: true,
@@ -32,7 +34,7 @@ function VideoManage() {
             }
         } catch (error) {
             console.error("Error while fetching video data, " , error);
-            
+            setError(error.response?.data?.message || error.message || 'An unexpected error occurred');
         }finally{
             setLoading(false)
         }
@@ -52,6 +54,7 @@ function VideoManage() {
       }, [videoData, reset]);
 
       const handleUpdateDetails = async (data) => {
+        setError(null);
         if (!data.title && !data.description) {
             setUpdateDetails(!updateDetails);
             return;
@@ -81,10 +84,12 @@ function VideoManage() {
             }
         } catch (error) {
             console.error("Error while updating video data", error);
+            setError(error.response?.data?.message || error.message || "Unable to update video's details, please try again!");
         }
     };
 
     const handlePublish = async()=>{
+        setError(null);
         try {
             const response = await axios.patch(`/api/v1/video/toggleIsPublished/${videoId}`, {
                 withCredentials: true
@@ -95,10 +100,12 @@ function VideoManage() {
             }
         } catch (error) {
             console.error("Error while toggle isPublish video", error);
+            setError(error.response?.data?.message || error.message || 'An unexpected error occurred');
         }
     }
 
     const handleDeleteVideo = async()=>{
+        setError(null);
         try {
             const response = await axios.delete(`/api/v1/video/delete/${videoId}`, {
                 withCredentials: true
@@ -108,6 +115,7 @@ function VideoManage() {
             }
         } catch (error) {
             console.error("Error while deleteing video", error);
+            setError(error.response?.data?.message || error.message || 'Unable to delete Video!');
         }
     }
 
@@ -187,6 +195,7 @@ function VideoManage() {
                             </button>
                     </div>
         </div>
+        {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   )
 }

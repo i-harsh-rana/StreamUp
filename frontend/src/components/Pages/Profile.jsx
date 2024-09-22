@@ -6,6 +6,7 @@ import timeCalculator from '../util/timeCalculator';
 import VideoCardMini from '../videoCards/VideoCardMini';
 import {Link} from 'react-router-dom'
 import {motion, AnimatePresence} from 'framer-motion'
+import ErrorDisplay from '../util/ErrorDisplay';
 
 
 function Profile() {
@@ -29,13 +30,14 @@ function Profile() {
           }
       } catch (error) {
           console.error("Error while fetching profile data:", error);
-          setError("Failed to fetch profile data");
+          setError(error.response?.data?.message || error.message || 'Unable to fetchProfileData, please try again!');
       } finally {
           setLoading(false);
       }
   }, [username]);
 
   const fetchChannelVideos = useCallback(async () => {
+    setError(null);
       try {
           const response = await axios.get(`/api/v1/video/videos-channel/${username}`, {
               withCredentials: true
@@ -45,6 +47,7 @@ function Profile() {
           }
       } catch (error) {
           console.error("Error while fetching channel videos:", error.response ? error.response.data : error.message);
+          setError(error.response?.data?.message || error.message || "Unable to fetch profiles's videos");
       }
   }, [username]);
 
@@ -54,6 +57,7 @@ function Profile() {
   }, [fetchProfileData, fetchChannelVideos]);
 
   const subscribeToggle = async(channelId)=>{
+    setError(null);
     try {
       const response = await axios.get(`/api/v1/subscription/t/${channelId}`, {
         withCredentials: true
@@ -70,6 +74,7 @@ function Profile() {
     }
     } catch (error) {
       console.error("Error while subscribe toggle:", error.response ? error.response.data : error.message);
+      setError(error.response?.data?.message || error.message || 'Unable to toggle Subscribe, please try again!');
     }
   }
 
@@ -199,6 +204,7 @@ function Profile() {
               </motion.div>
           )}
       </AnimatePresence>
+      {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
 
   )

@@ -7,6 +7,7 @@ import qs from 'qs';
 import Input from '../util/Input';
 import { useForm } from 'react-hook-form';
 import timeCalculator from '../util/timeCalculator';
+import ErrorDisplay from '../util/ErrorDisplay';
 
 function VideoComment({ videoId }) {
   const [loading, setLoading] = useState(false);
@@ -23,6 +24,7 @@ function VideoComment({ videoId }) {
 
   const fetchComment = async (videoId, page) => {
     setLoading(true);
+    setError(null);
     try {
       const response = await fetchVideoComment(videoId, page);
       const { comments, currentPage, totalComment, totalPages } = response;
@@ -49,6 +51,7 @@ function VideoComment({ videoId }) {
   };
 
   const handleCommentLike = async (commentId, index) => {
+    setError(null);
     try {
       const newLikeCount = await fetchCommnetLike(commentId);
       const updatedComments = [...comments];
@@ -56,6 +59,7 @@ function VideoComment({ videoId }) {
       setComments(updatedComments);
     } catch (error) {
       console.error("Error toggling like", error);
+      setError(error.response?.data?.message || error.message || "Unable to like commmnet, please try agina!")
     }
   };
 
@@ -70,8 +74,8 @@ function VideoComment({ videoId }) {
   };
 
   const handleEditSave = async (commentId) => {
+    setError(null);
     try {
-
       const newContent = qs.stringify({
         content: editedContent
       })
@@ -88,10 +92,12 @@ function VideoComment({ videoId }) {
       setEditedContent('');
     } catch (error) {
       console.error("Error updating comment", error);
+      setError(error.response?.data?.message || error.message || "Unable to update comment, Please try agina!")
     }
   };
 
   const addCommnet = async(data)=>{
+    setError(null);
     try {
       const contentData = qs.stringify({
         content: data.content
@@ -107,17 +113,20 @@ function VideoComment({ videoId }) {
 
     } catch (error) {
       console.error("Error while adding comment", error);
+      setError(error.response?.data?.message || error.message || 'Unable to add commnet, please try again!')
     }
 
   }
 
   const handleDeleteComment = async (commentId)=>{
+    setError(null);
       try {
         await deleteComment(commentId);
         setComments(prevComments => prevComments.filter(comment => comment._doc._id !== commentId));
         setTotalComment(prevTotal => prevTotal - 1);
       } catch (error) {
         console.error("Error while deleteing comment", error);
+        setError(error.response?.data?.message || error.message || "Unable to delete comment, please try again!")
       }
   }
 
@@ -201,6 +210,8 @@ function VideoComment({ videoId }) {
         <span>Page {currentPage} of {totalPage}</span>
         <i className={`fa-solid fa-arrow-right ml-3 ${currentPage === totalPage ? "opacity-40" : "opacity-100"}`} onClick={() => handlePageChange(currentPage + 1)}></i>
       </div>
+
+      {error && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
     </div>
   );
 }

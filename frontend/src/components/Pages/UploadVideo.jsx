@@ -6,6 +6,7 @@ import Input from '../util/Input';
 import Button from '../util/Button';
 import Uploading from '../util/Loadings/Uploading'
 import UploadDone from '../util/Loadings/UploadDone'
+import ErrorDisplay from '../util/ErrorDisplay';
 
 function UploadVideo() {
     const { register, handleSubmit, formState: { errors }, reset } = useForm();
@@ -42,7 +43,7 @@ function UploadVideo() {
             }
         } catch (error) {
             console.error("Error while Uploading", error.response?.data, error.response?.status);
-            setError(error.response?.data?.message || "An error occurred while uploading the video");
+            setError(error.response?.data?.message || error.message || "An error occurred while uploading the video");
         } finally {
             setLoading(false);
         }
@@ -115,6 +116,7 @@ function UploadVideo() {
                     />
                 </form>
             </div>
+            {error!==null && <ErrorDisplay errorMessage={error} onClose={()=>setError(null)}/>}
         </div>
     );
 }
