@@ -9,7 +9,7 @@ import Lottie from 'lottie-react';
 import Signup from '../../assets/Signup.json'
 import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { login } from '../../../store/authSlice';
+import { login } from '../../store/authSlice';
 
 function SignUp() {
     const [loading, setLoading] = useState(false);

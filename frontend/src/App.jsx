@@ -12,7 +12,7 @@ import Video from "./components/Pages/Video";
 import UploadVideo from "./components/Pages/UploadVideo";
 import Dashboard from "./components/Pages/Dashboard/Dashboard";
 import VideoManage from "./components/Pages/VideoManage";
-import AuthLayout from './components/AuthLayout'
+import AuthLayout from './components/auth/AuthLayout'
 import Playlists from "./components/Pages/Playlists/Playlists";
 
 function App() {
