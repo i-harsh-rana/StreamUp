@@ -81,47 +81,50 @@ Frontend:
 
 ## Screensorts
 
-Landing Page:
+Home Page:
 
 
 ![1streamUp](./frontend/src/assets/1Stream.png)
 
 
-Registration Page:
-
 
 ![6streamUp](./frontend/src/assets/2Stream.png)
 
 
-Login Page:
+Change Password Page:
 
 
 ![5streamUp](./frontend/src/assets/10Stream.png)
 
 
-Add Listing Page:
+Explore Page:
 
 
 ![4streamUp](./frontend/src/assets/12Stream.png)
 
 
-Listing Page: 
+Login Page: 
 
 
 ![7streamUp](./frontend/src/assets/4Stream.png)
 
 
-Listing Page: 
+Dashboard Page: 
 
 
 ![8streamUp](./frontend/src/assets/8Stream.png)
 
 
+
+![6streamUp](./frontend/src/assets/6Stream.png)
+
+
 ## Acknowledgements
 
-- Mapbox for providing map services.
-- Cloudinary for image storage.
-- Passport.js for authentication.
+- MERN Stack community for their resources and support.
+- Cloudinary for media management and optimization tools.
+- Redux Toolkit for simplifying state management.
+
 
 
 
