@@ -5,7 +5,6 @@ import {ApiResponse} from '../utils/ApiResponse.js'
 import { Like } from "../models/like.model.js";
 import { Comment } from '../models/comment.model.js'
 import { Video } from '../models/video.model.js'
-import { Tweet } from '../models/tweet.model.js'
 
 const toggleCommentLike = asyncHandler(async(req, res)=>{
     const {commentId} = req.params
@@ -56,50 +55,6 @@ const toggleCommentLike = asyncHandler(async(req, res)=>{
 
 })
 
-const toggleTweetLike = asyncHandler(async(req, res)=>{
-    const {tweetId} = req.params
-
-    if(!tweetId || !mongoose.Types.ObjectId.isValid(tweetId)){
-        throw new ApiError (404, "Please provide valid commnet ID")
-    }
-
-    const findTweet = await Tweet.findById(tweetId)
-
-    if(!findTweet){
-        throw new ApiError(404, "No such Tweet available")
-    }
-
-    const findTweetLike = await Like.findOne({
-        tweet: tweetId,
-        likedBy: req.user._id
-    })
-
-    if(!findTweetLike){
-        const newTweetLike = await Like.create({
-            tweet: tweetId, 
-            likedBy: req.user._id
-        })
-
-        if(!newTweetLike){
-            throw new ApiError(500, "Unable to like tweet, please try again")
-        }
-
-        return res
-        .status(200)
-        .json(
-            new ApiResponse(200, newTweetLike, "Tweet Liked Successfully")
-        )
-    }else{
-        await Like.deleteOne({ _id: findTweetLike._id });
-
-        return res
-        .status(200)
-        .json(
-            new ApiResponse(200, null, "Tweet unliked successfully")
-        )
-    }
-
-})
 
 const toggleVideoLike = asyncHandler(async(req, res)=>{
     const {videoId} = req.params
@@ -179,6 +134,5 @@ const getLikedVideo = asyncHandler(async(req, res)=>{
 export {
     toggleCommentLike,
     toggleVideoLike, 
-    toggleTweetLike, 
     getLikedVideo
 }
